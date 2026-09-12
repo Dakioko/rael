@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In Loving Memory — Rael Ndeve</title>
+
+  <meta name="description" content="A memorial programme celebrating the life of Rael Ndeve (1926–2026). Order of Service, Life Story, Candle Wall, Songs, Photo Gallery, and Acknowledgements.">
+  <meta name="theme-color" content="#1C1712">
+  <meta name="color-scheme" content="dark">
+
+  <!-- ⚠️ Create these two assets before publishing: og-image.jpg (1200×630) and apple-touch-icon.png (180×180) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="In Loving Memory of Rael Ndeve">
+  <meta property="og:description" content="March 14, 1926 – September 9, 2026 · A life beautifully lived, a heart deeply loved. Service at Masue Village, Makueni County.">
+  <meta property="og:image" content="og-image.jpg">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2314110D'/%3E%3Ctext x='32' y='44' text-anchor='middle' fill='%23BD7A3E' font-family='Georgia,serif' font-size='36' font-style='italic'%3ER%3C/text%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ── BASE VARIABLES ── */
+    :root {
+      --bg-deep:       #14110D;
+      --bg-hero:       #0F0C09;
+      --bg-card:       #1C1712;
+      --bg-card-alt:   #211B15;
+      --bg-elevated:   #241D16;
+      --gold:          #BD7A3E;
+      --gold-light:    #E3AD6E;
+      --gold-dim:      #7A5228;
+      --text-primary:  #F5F0E8;
+      --text-body:     #D1C7BD;
+      --text-muted:    #8E8375;
+      --border:        rgba(189, 122, 62, 0.2);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --font-heading:  'Cormorant Garamond', Georgia, serif;
+      --font-body:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    [hidden] { display: none !important; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+      overflow-x: clip;
+    }
+
+    body {
+      font-family: var(--font-body);
+      line-height: 1.8;
+      color: var(--text-body);
+      background-color: var(--bg-deep);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      max-width: 100%;
+    }
+
+    .skip-link {
+      position: absolute;
+      top: -60px;
+      left: 12px;
+      background: var(--gold);
+      color: var(--bg-deep);
+      padding: 10px 18px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      z-index: 2000;
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus { top: 12px; }
+
+    a:focus-visible,
+    button:focus-visible,
+    .gallery-item:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    .table-scroll:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ══════════════════════════════════════
+       FLOATING PETALS
+       ══════════════════════════════════════ */
+    .petals {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      top: -30px;
+      animation: fall linear infinite;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    .petal svg { display: block; width: 100%; height: 100%; }
+
+    @keyframes fall {
+      0%   { transform: translateY(-5vh) translateX(0) rotate(0deg); opacity: 0; }
+      8%   { opacity: 0.5; }
+      85%  { opacity: 0.45; }
+      100% { transform: translateY(105vh) translateX(100px) rotate(280deg); opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════
+       HERO
+       ══════════════════════════════════════ */
+    .hero {
+      background-color: var(--bg-hero);
+      color: var(--text-primary);
+      padding: 96px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 60% 48% at 22% 8%, rgba(189, 122, 62, 0.14) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(15, 12, 9, 0) 0%, var(--bg-hero) 94%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 14%;
+      right: 14%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(189, 122, 62, 0.28), transparent);
+    }
+
+    .hero .container { position: relative; z-index: 2; }
+
+    .hero-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero-portrait-frame {
+      position: relative;
+      width: 196px;
+      aspect-ratio: 4 / 5;
+      padding: 9px;
+      flex-shrink: 0;
+    }
+
+    .hero-portrait-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--border);
+    }
+
+    .hero-portrait-frame::after {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border: 1px solid rgba(189, 122, 62, 0.15);
+      pointer-events: none;
+    }
+
+    .hero-portrait-img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background-color: #191510;
+      filter: grayscale(0.3) brightness(0.95) contrast(1.03);
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .hero-monogram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 5rem;
+      line-height: 1;
+      color: var(--gold-dim);
+      background: radial-gradient(ellipse at 50% 35%, #2B2620 0%, #191510 100%);
+      filter: none;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      max-width: 520px;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 1.1rem;
+      color: var(--gold-light);
+      opacity: 0.82;
+      margin: 0;
+    }
+
+    .hero-name {
+      font-family: var(--font-heading);
+      font-weight: 400;
+      font-size: clamp(2.5rem, 8vw, 3.4rem);
+      line-height: 1.06;
+      letter-spacing: 0.2px;
+      color: #FDFBF7;
+      text-shadow: 0 4px 30px rgba(189, 122, 62, 0.16);
+      margin: 2px 0 0;
+    }
+
+    .hero-dates {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      row-gap: 4px;
+      gap: 12px;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      margin: 0;
+    }
+
+    .hero-dates-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--gold-dim);
+      flex-shrink: 0;
+    }
+
+    .hero-rule {
+      display: block;
+      width: 44px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+
+    .hero-service {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hero-service-venue {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 1.4rem;
+      color: var(--gold-light);
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .hero-service-when {
+      font-family: var(--font-body);
+      font-size: 0.84rem;
+      color: var(--text-body);
+      letter-spacing: 0.3px;
+      margin: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 22px;
+      background: transparent;
+      color: var(--gold-light);
+      text-decoration: none;
+      border-radius: 30px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+      border: 1px solid var(--gold-dim);
+      cursor: pointer;
+      font-family: var(--font-body);
+      white-space: nowrap;
+    }
+
+    .btn-pill:hover {
+      color: var(--bg-deep);
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .btn-pill .btn-icon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .btn-pill.btn-pill-ghost {
+      color: var(--text-body);
+      border-color: var(--border-subtle);
+    }
+    .btn-pill.btn-pill-ghost:hover {
+      color: var(--gold-light);
+      border-color: var(--gold-dim);
+      background: rgba(189, 122, 62, 0.06);
+    }
+
+    .share-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(28, 23, 18, 0.96);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-light);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.35s ease;
+      z-index: 1100;
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+      font-family: var(--font-body);
+    }
+
+    .share-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 860px) {
+      .hero { padding: 116px 44px 100px; }
+
+      .hero-layout {
+        flex-direction: row;
+        align-items: center;
+        gap: 88px;
+        max-width: 1080px;
+        text-align: left;
+      }
+
+      .hero-portrait-frame { width: 264px; }
+
+      .hero-content {
+        align-items: flex-start;
+        max-width: none;
+      }
+
+      .hero-dates,
+      .hero-actions {
+        justify-content: flex-start;
+      }
+
+      .hero-name { font-size: clamp(3rem, 4.6vw, 4.1rem); }
+    }
+
+    /* ══════════════════════════════════════
+       NAVIGATION & PROGRESS BAR
+       ══════════════════════════════════════ */
+    .nav-bar-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: rgba(20, 17, 13, 0.96);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 15px 18px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: color 0.3s ease;
+      position: relative;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .nav-bar a::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-bar a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 18px;
+      height: 2px;
+      background-color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-bar a:hover,
+    .nav-bar a[aria-current="location"] { color: var(--gold-light); }
+
+    .nav-bar a:hover::before,
+    .nav-bar a[aria-current="location"]::before { opacity: 1; }
+
+    .nav-bar a:hover::after,
+    .nav-bar a[aria-current="location"]::after { transform: translateX(-50%) scaleX(1); }
+
+    .progress-container { width: 100%; height: 3px; background: transparent; }
+    .progress-bar {
+      height: 100%;
+      background: var(--gold);
+      width: 0%;
+      transition: width 0.1s ease-out;
+      box-shadow: 0 0 8px rgba(189, 122, 62, 0.5);
+    }
+
+    /* ══════════════════════════════════════
+       SECTIONS & CARDS
+       ══════════════════════════════════════ */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 4px;
+      padding: 56px 48px;
+      margin: 36px 0;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      position: relative;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.9s ease, transform 0.9s ease, box-shadow 0.4s ease;
+    }
+
+    .section-card.visible { opacity: 1; transform: translateY(0); }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+
+    .section-header { text-align: center; margin-bottom: 44px; }
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--gold-light);
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+      text-wrap: balance;
+    }
+
+    .section-divider {
+      width: 56px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .section-divider::after {
+      content: '◆';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.4rem;
+      color: var(--gold);
+      padding: 0 6px;
+      background: inherit;
+    }
+
+    /* ══════════════════════════════════════
+       ORDER OF SERVICE
+       ══════════════════════════════════════ */
+    .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .programme-table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 0.9rem; }
+    .programme-table thead th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+      background: rgba(189, 122, 62, 0.03);
+    }
+
+    .programme-table tbody td { padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); vertical-align: top; }
+    .programme-table .col-time {
+      font-weight: 500;
+      color: var(--gold);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      width: 150px;
+    }
+    .programme-table .col-activity {
+      color: var(--text-primary);
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+    .programme-table tr.sub-row td.col-activity {
+      padding-left: 32px;
+      font-style: italic;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 400;
+      position: relative;
+    }
+    .programme-table tr.sub-row td.col-activity::before {
+      content: '—';
+      position: absolute;
+      left: 16px;
+      color: var(--gold-dim);
+    }
+
+    .programme-list {
+      display: none;
+      list-style: none;
+      padding-left: 24px;
+      border-left: 2px solid var(--gold-dim);
+      margin: 0;
+    }
+    .programme-list li {
+      position: relative;
+      padding: 14px 0 14px 18px;
+    }
+    .programme-list li::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 20px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .programme-list .time {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      color: var(--gold);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 4px;
+    }
+    .programme-list .activity {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .programme-list li.sub {
+      padding: 6px 0 6px 18px;
+      margin-left: 4px;
+      border-left: 1px dashed var(--gold-dim);
+    }
+    .programme-list li.sub::before { display: none; }
+    .programme-list li.sub .activity {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-weight: 400;
+    }
+
+    /* ══════════════════════════════════════
+       LIFE STORY
+       ══════════════════════════════════════ */
+    .eulogy-text {
+      font-size: 1.02rem;
+      color: var(--text-body);
+      margin-bottom: 22px;
+      line-height: 1.9;
+      font-weight: 400;
+    }
+    .eulogy-text:last-of-type { margin-bottom: 0; }
+    .eulogy-text strong { color: var(--text-primary); font-weight: 500; }
+
+    .rest-in-peace {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .rest-in-peace p {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--gold-light);
+      line-height: 1.8;
+      max-width: 520px;
+      margin: 0 auto;
+      font-weight: 300;
+    }
+
+    /* ══════════════════════════════════════
+       CANDLE WALL
+       ══════════════════════════════════════ */
+    .candle-intro {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-body);
+      margin-bottom: 28px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+
+    .candle-form {
+      max-width: 520px;
+      margin: 0 auto 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .candle-form-row { display: flex; gap: 12px; }
+
+    .candle-input,
+    .candle-textarea {
+      width: 100%;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    .candle-input::placeholder,
+    .candle-textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.7;
+    }
+
+    .candle-input:focus,
+    .candle-textarea:focus {
+      border-color: var(--gold-dim);
+      background: rgba(33, 27, 21, 0.9);
+      outline: none;
+    }
+
+    .candle-textarea { resize: vertical; min-height: 72px; }
+
+    .candle-form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .candle-form-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .candle-form-hint.error { color: #D98873; }
+
+    .candle-wall {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+      gap: 30px 18px;
+      margin-top: 8px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      min-height: 100px;
+    }
+
+    .candle-wall-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+      font-family: var(--font-heading);
+      padding: 24px 0;
+      letter-spacing: 0.5px;
+    }
+
+    .candle-entry {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      padding: 0 6px 16px;
+      text-align: center;
+      animation: candleAppear 0.6s ease;
+    }
+
+    .candle-entry::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 34px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    @keyframes candleAppear {
+      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .candle-entry-svg { width: 30px; height: 44px; filter: drop-shadow(0 0 10px rgba(255, 176, 58, 0.18)); }
+
+    .candle-entry-name {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 0.92rem;
+      color: var(--gold-light);
+      line-height: 1.2;
+    }
+
+    .candle-entry-message {
+      font-size: 0.75rem;
+      color: var(--text-body);
+      line-height: 1.5;
+      font-style: italic;
+      max-width: 100%;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .candle-entry-time {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .candle-entry-remove {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 2px 6px;
+      font-family: var(--font-body);
+      opacity: 0;
+      transition: opacity 0.3s ease, color 0.3s ease;
+    }
+
+    .candle-entry:hover .candle-entry-remove,
+    .candle-entry:focus-within .candle-entry-remove { opacity: 1; }
+    .candle-entry-remove:hover { color: #D98873; }
+
+    @media (hover: none) {
+      .candle-entry-remove { opacity: 1; }
+    }
+
+    .candle-count-summary {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-top: 20px;
+      text-transform: uppercase;
+    }
+
+    .candle-print-list { display: none; }
+
+    /* ══════════════════════════════════════
+       SONGS
+       ══════════════════════════════════════ */
+    .songs-grid { display: grid; grid-template-columns: 1fr; }
+    .song-card {
+      padding: 36px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .song-card:first-child { border-top: none; padding-top: 0; }
+    .song-card:last-child { padding-bottom: 0; }
+
+    .song-number {
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    .song-title {
+      font-family: var(--font-heading);
+      font-size: 1.7rem;
+      font-weight: 500;
+      color: var(--gold-light);
+      line-height: 1.2;
+    }
+
+    .song-lyric {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 1.15rem;
+      color: var(--text-body);
+      line-height: 1.85;
+    }
+
+    .lyrics-expand {
+      display: block;
+      margin-top: 14px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+    .lyrics-expand:not(.open) { display: none; }
+
+    .btn-toggle-lyrics {
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 0.75rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      padding: 0;
+      margin-top: 8px;
+      text-align: left;
+      font-family: var(--font-body);
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    .btn-toggle-lyrics:hover { color: var(--gold-light); }
+
+    /* ══════════════════════════════════════
+       GALLERY
+       ══════════════════════════════════════ */
+    .gallery-note {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: -24px;
+      margin-bottom: 32px;
+      font-family: var(--font-heading);
+      letter-spacing: 0.3px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border-radius: 2px;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card-alt);
+      transition: transform 0.4s ease, border-color 0.4s ease;
+    }
+    .gallery-item:hover { transform: scale(1.02); border-color: var(--gold-dim); }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease, filter 0.4s ease;
+      filter: grayscale(0.15) brightness(0.92);
+    }
+    .gallery-item:hover img { transform: scale(1.06); filter: grayscale(0) brightness(1); }
+
+    .gallery-zoom {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(20, 17, 13, 0.75);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-light);
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+    .gallery-item:hover .gallery-zoom,
+    .gallery-item:focus-visible .gallery-zoom { opacity: 1; }
+
+    .gallery-caption {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 20px 12px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+      color: var(--gold-light);
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      font-family: var(--font-heading);
+      font-style: italic;
+      line-height: 1.3;
+    }
+    .gallery-item:hover .gallery-caption { opacity: 1; }
+
+    /* ══════════════════════════════════════
+       ACKNOWLEDGEMENT
+       ══════════════════════════════════════ */
+    .acknowledgement-text {
+      font-size: 1.05rem;
+      color: var(--text-body);
+      line-height: 1.95;
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
+    .family-signature {
+      text-align: center;
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 1.3rem;
+      color: var(--gold-light);
+      margin-top: 40px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ══════════════════════════════════════
+       FOOTER SHARE
+       ══════════════════════════════════════ */
+    .footer-share {
+      text-align: center;
+      padding: 48px 24px 72px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .footer-share-label {
+      font-size: 0.68rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .footer-share-label::before,
+    .footer-share-label::after {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim));
+    }
+
+    .footer-share-label::after {
+      background: linear-gradient(90deg, var(--gold-dim), transparent);
+    }
+
+    .footer-share-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ══════════════════════════════════════
+       BACK TO TOP
+       ══════════════════════════════════════ */
+    .back-to-top {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: rgba(28, 23, 18, 0.92);
+      border: none;
+      color: var(--gold-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease, background 0.3s ease, color 0.3s ease;
+      z-index: 90;
+      backdrop-filter: blur(8px);
+      font-family: var(--font-body);
+      padding: 0;
+    }
+
+    .back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .back-to-top-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      pointer-events: none;
+    }
+
+    .back-to-top-ring-bg {
+      fill: none;
+      stroke: rgba(189, 122, 62, 0.18);
+      stroke-width: 2;
+    }
+
+    .back-to-top-ring-fill {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.12s linear;
+      filter: drop-shadow(0 0 4px rgba(189, 122, 62, 0.5));
+    }
+
+    .back-to-top-arrow {
+      font-size: 1.15rem;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s ease;
+    }
+
+    .back-to-top:hover { background: var(--gold); color: var(--bg-deep); }
+    .back-to-top:hover .back-to-top-arrow { transform: translateY(-2px); }
+
+    .back-to-top.complete .back-to-top-ring-fill {
+      stroke: var(--gold-light);
+      filter: drop-shadow(0 0 8px rgba(227, 173, 110, 0.7));
+    }
+
+    /* ══════════════════════════════════════
+       LIGHTBOX
+       ══════════════════════════════════════ */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 7, 11, 0.96);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .lightbox.open { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .lightbox-content {
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+    .lightbox-caption {
+      font-family: var(--font-heading);
+      font-style: italic;
+      color: var(--gold-light);
+      font-size: 1.05rem;
+      text-align: center;
+    }
+    .lightbox-counter {
+      position: absolute;
+      top: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: rgba(20, 17, 13, 0.7);
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .lightbox-close,
+    .lightbox-nav {
+      position: absolute;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--gold-light);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-close { top: 24px; right: 28px; }
+    .lightbox-nav { top: 50%; transform: translateY(-50%); }
+    .lightbox-prev { left: 24px; }
+    .lightbox-next { right: 24px; }
+    .lightbox-close:hover,
+    .lightbox-nav:hover {
+      background: var(--gold);
+      color: var(--bg-deep);
+      border-color: var(--gold);
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════════ */
+    @media (max-width: 720px) {
+      .section-card { padding: 36px 22px; margin: 24px 0; }
+      .hero { padding: 56px 20px 60px; }
+      .hero-portrait-frame { width: 168px; }
+      .hero-service-venue { font-size: 1.25rem; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+      .gallery-caption {
+        opacity: 1;
+        font-size: 0.7rem;
+        padding: 16px 8px 8px;
+        background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
+      }
+      .gallery-zoom { opacity: 1; width: 24px; height: 24px; font-size: 0.75rem; top: 8px; right: 8px; }
+
+      .nav-bar {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        padding: 0 12px;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+      }
+      .nav-bar::-webkit-scrollbar { display: none; }
+      .nav-bar a { scroll-snap-align: start; padding: 14px 12px; font-size: 0.85rem; gap: 5px; }
+      .nav-bar a::before { display: none; }
+
+      .table-scroll { display: none; }
+      .programme-list { display: block; }
+
+      .back-to-top { bottom: 20px; right: 20px; width: 46px; height: 46px; }
+      .back-to-top-arrow { font-size: 1rem; }
+
+      .candle-form-row { flex-direction: column; gap: 10px; }
+      .candle-form-footer { flex-direction: column; align-items: stretch; }
+      .candle-form-footer .btn-pill { justify-content: center; }
+      .candle-wall { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 24px 12px; }
+
+      .btn-pill { padding: 11px 18px; font-size: 0.65rem; letter-spacing: 1.4px; }
+      .hero-actions { gap: 10px; }
+
+      .share-toast { bottom: 76px; font-size: 0.72rem; padding: 10px 18px; }
+
+      .song-title { font-size: 1.45rem; }
+      .song-lyric { font-size: 1.05rem; }
+    }
+
+    /* ══════════════════════════════════════
+       REDUCED MOTION
+       ══════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      .petal { display: none; }
+
+      .section-card { opacity: 1; transform: none; transition: none; }
+      .candle-entry { animation: none; }
+      .lightbox.open { animation: none; }
+
+      .btn-pill, .back-to-top, .gallery-item, .gallery-item img,
+      .nav-bar a, .nav-bar a::after, .nav-bar a::before,
+      .candle-input, .candle-textarea {
+        transition: none;
+      }
+
+      .gallery-item:hover { transform: none; }
+      .gallery-item:hover img { transform: none; }
+      .back-to-top:hover .back-to-top-arrow { transform: none; }
+    }
+
+    /* ══════════════════════════════════════
+       PRINT STYLES
+       ══════════════════════════════════════ */
+    @media print {
+      :root {
+        --bg-deep: #fff; --bg-hero: #fff; --bg-card: #fff; --bg-card-alt: #f6f6f6;
+        --gold: #7a5f1e; --gold-light: #5c481a; --text-primary: #1a1a1a; --text-body: #2b2b2b;
+        --text-muted: #555; --border: #ccc; --border-subtle: #ddd;
+      }
+      .skip-link, .petals, .nav-bar-wrapper, .lightbox,
+      .hero-actions,
+      .back-to-top, .footer-share, .share-toast,
+      .candle-form, .candle-wall, .candle-count-summary,
+      .btn-toggle-lyrics, .gallery-note { display: none !important; }
+
+      .table-scroll { display: block !important; }
+      .programme-list { display: none !important; }
+
+      .candle-print-list { display: block !important; margin-top: 24px; }
+      .candle-print-list h3 {
+        font-family: var(--font-heading);
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        color: #4a3a22;
+      }
+      .candle-print-list ul { list-style: none; }
+      .candle-print-list li {
+        padding: 6px 0;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.9rem;
+      }
+      .candle-print-list li strong { color: #1a1a1a; }
+
+      body, .hero, .section-card { background: #fff !important; color: #000 !important; box-shadow: none !important; }
+      .section-card {
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      .lyrics-expand { display: block !important; }
+      .hero-name { color: #1a1a1a !important; text-shadow: none !important; }
+      .hero-eyebrow, .hero-service-venue { color: #4a3a22 !important; }
+
+      .hero-layout { display: block !important; text-align: center !important; }
+      .hero-content { align-items: center !important; max-width: none !important; margin: 0 auto; }
+      .hero-portrait-frame { margin: 0 auto; }
+      .hero-portrait-frame::before,
+      .hero-portrait-frame::after { border-color: #ccc !important; }
+      .hero-portrait-img { box-shadow: none !important; filter: none !important; }
+      .hero-monogram { background: #f0f0f0 !important; color: #7a5f1e !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <div class="petals" aria-hidden="true" id="petals"></div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="waxShade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="rgba(0,0,0,0.12)"/>
+        <stop offset="50%"  stop-color="rgba(255,255,255,0.15)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0.18)"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- ══════════════════════════════════════
+       HERO
+       ══════════════════════════════════════ -->
+  <header class="hero">
+    <div class="container">
+      <div class="hero-layout">
+
+        <div class="hero-portrait-frame">
+          <!-- To use a real photo, replace the div below with:-->
+          <img src="img/r.jpeg" alt="Portrait of Rael Ndeve" class="hero-portrait-img" loading="eager">
+         <!--<div class="hero-portrait-img hero-monogram" role="img" aria-label="Monogram for Rael Ndeve">R</div>-->
+        </div>
+
+        <div class="hero-content">
+          <p class="hero-eyebrow">In loving memory of</p>
+          <h1 class="hero-name">Rael Ndeve</h1>
+
+          <p class="hero-dates">
+            <time datetime="1926-03-14">March 14, 1926</time>
+            <span class="hero-dates-dot" aria-hidden="true"></span>
+            <time datetime="2026-09-09">September 9, 2026</time>
+          </p>
+
+          <span class="hero-rule" aria-hidden="true"></span>
+
+          <div class="hero-service">
+            <p class="hero-service-venue">Masue Village — Makueni County</p>
+            <p class="hero-service-when">
+              <time datetime="2026-09-19T10:00">Saturday, September 19, 2026 · 10:00 in the morning</time>
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <a href="https://maps.google.com/?q=Masue+Village,+Makueni+County,+Kenya"
+               target="_blank" rel="noopener noreferrer" class="btn-pill">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 2 L 21 21 L 12 17 L 3 21 Z"/>
+                <line x1="12" y1="2" x2="12" y2="17"/>
+              </svg>
+              Get directions
+            </a>
+            <a href="#service" class="btn-pill btn-pill-ghost">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 6 h16 M4 12 h16 M4 18 h10"/>
+              </svg>
+              View programme
+            </a>
+            <button type="button" class="btn-pill btn-pill-ghost" onclick="shareThis()">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="18" cy="5" r="3"/>
+                <circle cx="6" cy="12" r="3"/>
+                <circle cx="18" cy="19" r="3"/>
+                <line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/>
+                <line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/>
+              </svg>
+              Share
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       STICKY NAV & PROGRESS BAR
+       ══════════════════════════════════════ -->
+  <div class="nav-bar-wrapper">
+    <nav class="nav-bar" aria-label="Memorial programme sections">
+      <a href="#service">Programme</a>
+      <a href="#story">Life Story</a>
+      <a href="#tribute">Candle Wall</a>
+      <a href="#songs">Songs</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#thanks">Acknowledgements</a>
+    </nav>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+
+  <main id="main-content" class="container">
+
+    <!-- ══════════════════════════════════════
+         ORDER OF SERVICE
+         ══════════════════════════════════════ -->
+    <section id="service" class="section-card" aria-labelledby="service-title">
+      <div class="section-header">
+        <h2 class="section-title" id="service-title">Order of Service</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Order of service schedule">
+        <table class="programme-table">
+          <thead>
+            <tr>
+              <th scope="col">Time</th>
+              <th scope="col">Activity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-time">07:00 – 08:00 AM</td>
+              <td class="col-activity">Body Viewing &amp; Prayers</td>
+            </tr>
+            <tr>
+              <td class="col-time">08:30 AM</td>
+              <td class="col-activity">Funeral Procession Departs Mortuary</td>
+            </tr>
+            <tr>
+              <td class="col-time">10:00 AM</td>
+              <td class="col-activity">Arrival &amp; Reception of the Body</td>
+            </tr>
+            <tr>
+              <td class="col-time">10:15 AM</td>
+              <td class="col-activity">Opening Hymn</td>
+            </tr>
+            <tr>
+              <td class="col-time">10:25 AM</td>
+              <td class="col-activity">Opening Prayer</td>
+            </tr>
+            <tr>
+              <td class="col-time">10:35 AM</td>
+              <td class="col-activity">Scripture Readings</td>
+            </tr>
+            <tr class="sub-row">
+              <td class="col-time"></td>
+              <td class="col-activity">Old Testament Reading</td>
+            </tr>
+            <tr class="sub-row">
+              <td class="col-time"></td>
+              <td class="col-activity">New Testament Reading</td>
+            </tr>
+            <tr>
+              <td class="col-time">10:50 AM</td>
+              <td class="col-activity">Reading of the Life Story</td>
+            </tr>
+            <tr>
+              <td class="col-time">11:30 AM</td>
+              <td class="col-activity">Tributes</td>
+            </tr>
+            <tr>
+              <td class="col-time">11:45 AM</td>
+              <td class="col-activity">Sermon &amp; Word of Comfort</td>
+            </tr>
+            <tr>
+              <td class="col-time">12:40 PM</td>
+              <td class="col-activity">Closing Hymn</td>
+            </tr>
+            <tr>
+              <td class="col-time">12:50 PM</td>
+              <td class="col-activity">Recessional</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ol class="programme-list" id="programmeList" aria-label="Order of service schedule"></ol>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         LIFE STORY
+         ⚠️ Placeholders remain: [BIRTHPLACE] and [SPOUSE NAME]
+         ══════════════════════════════════════ -->
+    <section id="story" class="section-card" aria-labelledby="story-title">
+      <div class="section-header">
+        <h2 class="section-title" id="story-title">Life Story</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="eulogy-section" id="eulogyContent">
+        <p class="eulogy-text">
+          Rael Ndeve was born on <strong>March 14, 1926</strong> in <strong>[BIRTHPLACE]</strong>. Over her 30-year career as a dedicated educator and librarian, Rael inspired generations of young readers to embrace curiosity and lifelong learning.
+        </p>
+        <p class="eulogy-text">
+          Rael married <strong>[SPOUSE NAME]</strong>, and their union was blessed with three children: Robert, Mary, and Elizabeth. She was a lifelong gardener, gifted pianist, and generous volunteer in her local community chapel.
+        </p>
+        <p class="eulogy-text">
+          Rael passed away peacefully on <strong>September 9, 2026</strong>. She leaves behind her loving family, friends, and colleagues who will forever cherish her memory.
+        </p>
+      </div>
+
+      <div class="rest-in-peace">
+        <p>
+          “Your life was a blessing, your memory a treasure.<br>
+          You are loved beyond words and missed beyond measure.”
+        </p>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         CANDLE WALL
+         ══════════════════════════════════════ -->
+    <section id="tribute" class="section-card candle-section" aria-labelledby="candle-title">
+      <div class="section-header">
+        <h2 class="section-title" id="candle-title">Candle Wall</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <p class="candle-intro">
+        Light a candle and leave a few words in memory of Rael. Your message will appear on the wall below.
+      </p>
+
+      <form class="candle-form" id="candleForm" onsubmit="submitCandle(event)">
+        <div class="candle-form-row">
+          <input
+            type="text"
+            class="candle-input"
+            id="candleName"
+            name="name"
+            placeholder="Your name"
+            maxlength="40"
+            autocomplete="name"
+            required
+            aria-label="Your name">
+        </div>
+        <textarea
+          class="candle-textarea"
+          id="candleMessage"
+          name="message"
+          placeholder="A short message (optional)"
+          maxlength="140"
+          aria-label="Your message"></textarea>
+        <div class="candle-form-footer">
+          <span class="candle-form-hint" id="candleHint">Your candle is kept on this device only.</span>
+          <button type="submit" class="btn-pill" id="candleSubmitBtn">
+            🕯️ Light a Candle
+          </button>
+        </div>
+      </form>
+
+      <div class="candle-wall" id="candleWall" aria-live="polite" aria-label="Candles lit in memory of Rael"></div>
+
+      <p class="candle-count-summary" id="candleSummary"></p>
+
+      <div class="candle-print-list" id="candlePrintList"></div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         SONGS
+         ══════════════════════════════════════ -->
+    <section id="songs" class="section-card" aria-labelledby="songs-title">
+      <div class="section-header">
+        <h2 class="section-title" id="songs-title">Songs &amp; Hymns</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="songs-grid">
+        <div class="song-card">
+          <span class="song-number">Hymn 1</span>
+          <div class="song-title">Amazing Grace</div>
+          <p class="song-lyric">
+            "Amazing grace, how sweet the sound,<br>
+            that saved a wretch like me…"
+          </p>
+          <div class="lyrics-expand open" id="lyrics1">
+            <p class="song-lyric">
+              I once was lost, but now am found;<br>
+              Was blind, but now I see.<br><br>
+              'Twas grace that taught my heart to fear,<br>
+              And grace my fears relieved;<br>
+              How precious did that grace appear<br>
+              The hour I first believed.
+            </p>
+          </div>
+          <button class="btn-toggle-lyrics" aria-expanded="true" aria-controls="lyrics1" onclick="toggleLyrics('lyrics1', this)">Hide Lyrics ▲</button>
+        </div>
+
+        <div class="song-card">
+          <span class="song-number">Hymn 2</span>
+          <div class="song-title">Abide With Me</div>
+          <p class="song-lyric">
+            "Abide with me; fast falls the eventide;<br>
+            the darkness deepens; Lord, with me abide…"
+          </p>
+          <div class="lyrics-expand open" id="lyrics2">
+            <p class="song-lyric">
+              When other helpers fail and comforts flee,<br>
+              Help of the helpless, O abide with me.<br><br>
+              Swift to its close ebbs out life's little day;<br>
+              Earth's joys grow dim, its glories pass away.
+            </p>
+          </div>
+          <button class="btn-toggle-lyrics" aria-expanded="true" aria-controls="lyrics2" onclick="toggleLyrics('lyrics2', this)">Hide Lyrics ▲</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         PHOTO GALLERY
+         Hidden until real photos are supplied.
+         ══════════════════════════════════════ -->
+    <section id="gallery" class="section-card" aria-labelledby="gallery-title" hidden>
+      <div class="section-header">
+        <h2 class="section-title" id="gallery-title">Precious Memories</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <p class="gallery-note" id="galleryNote"></p>
+
+      <div class="gallery-grid" data-gallery="memories"></div>
+    </section>
+
+    <!-- ══════════════════════════════════════
+         ACKNOWLEDGEMENT
+         ══════════════════════════════════════ -->
+    <section id="thanks" class="section-card" aria-labelledby="thanks-title">
+      <div class="section-header">
+        <h2 class="section-title" id="thanks-title">Acknowledgements</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <p class="acknowledgement-text">
+        The family of the late <strong>Rael Ndeve</strong> wishes to express their heartfelt gratitude to relatives, friends, and well-wishers for their overwhelming love, prayers, financial assistance, and emotional support during this time of bereavement.
+      </p>
+
+      <div class="family-signature">
+        — The Ndeve Family —
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════
+       FOOTER SHARE
+       ══════════════════════════════════════ -->
+  <div class="footer-share">
+    <p class="footer-share-label">Share this memorial</p>
+    <div class="footer-share-buttons">
+      <button type="button" class="btn-pill btn-pill-ghost" onclick="shareThis()">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/>
+          <line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/>
+        </svg>
+        Share this memorial
+      </button>
+    </div>
+  </div>
+
+  <button
+    class="back-to-top"
+    id="backToTop"
+    aria-label="Back to top"
+    title="Back to top"
+    onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+    <svg class="back-to-top-ring" viewBox="0 0 52 52" aria-hidden="true">
+      <circle class="back-to-top-ring-bg" cx="26" cy="26" r="23"></circle>
+      <circle class="back-to-top-ring-fill" id="scrollRing" cx="26" cy="26" r="23"></circle>
+    </svg>
+    <span class="back-to-top-arrow" aria-hidden="true">↑</span>
+  </button>
+
+  <div class="share-toast" id="shareToast" role="status" aria-live="polite"></div>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close photo viewer">×</button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous photo">‹</button>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next photo">›</button>
+    <div class="lightbox-content">
+      <p class="lightbox-counter" id="lightboxCounter" aria-live="polite"></p>
+      <img id="lightboxImg" src="" alt="">
+      <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+  </div>
+
+  <script>
+    /* ══════════════════════════════════════
+       FLOATING PETALS
+       ══════════════════════════════════════ */
+    function createPetals() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const container = document.getElementById('petals');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const count = window.innerWidth < 680 ? 8 : 14;
+      const petalSVG = `
+        <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 1 C 14 5, 16 10, 14 15 C 12 18, 8 18, 6 15 C 4 10, 6 5, 10 1 Z"
+                fill="rgba(232, 213, 163, 0.45)"
+                stroke="rgba(227, 173, 110, 0.35)"
+                stroke-width="0.5"/>
+          <path d="M10 3 L 10 16" stroke="rgba(227, 173, 110, 0.25)" stroke-width="0.4" fill="none"/>
+        </svg>
+      `;
+
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        p.innerHTML = petalSVG;
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (14 + Math.random() * 16) + 's';
+        p.style.animationDelay = (Math.random() * 18) + 's';
+        const size = 12 + Math.random() * 10;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        container.appendChild(p);
+      }
+    }
+    createPetals();
+
+    let petalResizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(petalResizeTimer);
+      petalResizeTimer = setTimeout(createPetals, 300);
+    }, { passive: true });
+
+    /* ══════════════════════════════════════
+       SCROLL: PROGRESS, RING, BACK-TO-TOP
+       ══════════════════════════════════════ */
+    (function scrollHandlers() {
+      const progressBar = document.getElementById('progressBar');
+      const backToTop = document.getElementById('backToTop');
+      const scrollRing = document.getElementById('scrollRing');
+
+      const RING_RADIUS = 23;
+      const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+      if (scrollRing) {
+        scrollRing.style.strokeDasharray = RING_CIRCUMFERENCE;
+        scrollRing.style.strokeDashoffset = RING_CIRCUMFERENCE;
+      }
+
+      let ticking = false;
+
+      function update() {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const progress = height > 0 ? Math.min(winScroll / height, 1) : 0;
+
+        progressBar.style.width = (progress * 100) + '%';
+
+        if (scrollRing) {
+          scrollRing.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
+        }
+
+        backToTop.classList.toggle('visible', winScroll > 400);
+        backToTop.classList.toggle('complete', progress > 0.985);
+
+        ticking = false;
+      }
+
+      window.addEventListener('scroll', () => {
+        if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+      }, { passive: true });
+
+      window.addEventListener('resize', update, { passive: true });
+      update();
+    })();
+
+    (function revealSections() {
+      const sections = document.querySelectorAll('.section-card');
+      if (!('IntersectionObserver' in window)) {
+        sections.forEach(s => s.classList.add('visible'));
+        return;
+      }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+      sections.forEach(s => io.observe(s));
+    })();
+
+    (function highlightNav() {
+      const links = Array.from(document.querySelectorAll('.nav-bar a'));
+      const sections = links
+        .map(l => document.querySelector(l.getAttribute('href')))
+        .filter(Boolean);
+      if (!('IntersectionObserver' in window) || !sections.length) return;
+
+      const visible = new Set();
+
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) visible.add(e.target.id);
+          else visible.delete(e.target.id);
+        });
+
+        links.forEach(l => l.removeAttribute('aria-current'));
+        if (!visible.size) return;
+
+        const firstId = sections.find(s => visible.has(s.id))?.id;
+        const link = links.find(l => l.getAttribute('href') === '#' + firstId);
+        if (link) link.setAttribute('aria-current', 'location');
+      }, { threshold: 0.2, rootMargin: '-20% 0px -50% 0px' });
+
+      sections.forEach(s => io.observe(s));
+    })();
+
+    (function buildProgrammeList() {
+      const list = document.getElementById('programmeList');
+      if (!list) return;
+      const rows = document.querySelectorAll('.programme-table tbody tr');
+      rows.forEach(tr => {
+        const timeEl = tr.querySelector('.col-time');
+        const activityEl = tr.querySelector('.col-activity');
+        const time = timeEl ? timeEl.textContent.trim() : '';
+        const activity = activityEl ? activityEl.textContent.trim() : '';
+
+        const li = document.createElement('li');
+        if (tr.classList.contains('sub-row')) li.classList.add('sub');
+
+        if (time) {
+          const t = document.createElement('span');
+          t.className = 'time';
+          t.textContent = time;
+          li.appendChild(t);
+        }
+        const a = document.createElement('span');
+        a.className = 'activity';
+        a.textContent = activity;
+        li.appendChild(a);
+
+        list.appendChild(li);
+      });
+    })();
+
+    /* ══════════════════════════════════════
+       SHARE
+       ══════════════════════════════════════ */
+    function showToast(message) {
+      const toast = document.getElementById('shareToast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toast.classList.remove('show'), 2400);
+    }
+
+    async function shareThis() {
+      const shareData = {
+        title: 'In Loving Memory of Rael Ndeve',
+        text: 'A memorial programme celebrating the life of Rael Ndeve.',
+        url: window.location.href
+      };
+
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(window.location.href);
+          showToast('Link copied to clipboard');
+        } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+          const ta = document.createElement('textarea');
+          ta.value = window.location.href;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast('Link copied to clipboard');
+        } else {
+          showToast('Copy this link: ' + window.location.href);
+        }
+      } catch (err) {
+        showToast('Sharing not available on this device');
+      }
+    }
+
+    /* ══════════════════════════════════════
+       LYRICS ACCORDION
+       ══════════════════════════════════════ */
+    function toggleLyrics(id, btn) {
+      const content = document.getElementById(id);
+      const isOpen = content.classList.contains('open');
+      if (isOpen) {
+        content.classList.remove('open');
+        btn.textContent = 'Show Full Lyrics ▼';
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        content.classList.add('open');
+        btn.textContent = 'Hide Lyrics ▲';
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    /* ══════════════════════════════════════
+       CANDLE WALL — device-local
+       ══════════════════════════════════════ */
+    const CANDLE_STORAGE_KEY = 'rael-ndeve-memorial-candles-v1';
+    const MAX_CANDLES_DISPLAY = 24;
+
+    function getStoredCandles() {
+      try {
+        const raw = localStorage.getItem(CANDLE_STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) { return []; }
+    }
+
+    function storeCandles(candles) {
+      try { localStorage.setItem(CANDLE_STORAGE_KEY, JSON.stringify(candles)); }
+      catch (e) { /* silent */ }
+    }
+
+    function formatRelativeTime(timestamp) {
+      const diff = Date.now() - timestamp;
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + 'm ago';
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return hours + 'h ago';
+      const days = Math.floor(hours / 24);
+      if (days < 30) return days + 'd ago';
+      return Math.floor(days / 30) + 'mo ago';
+    }
+
+    const candleSVG = `
+      <svg class="candle-entry-svg" viewBox="0 0 40 60" aria-hidden="true">
+        <rect x="14" y="26" width="12" height="32" rx="2" fill="#EFE7DA"/>
+        <rect x="14" y="26" width="12" height="32" rx="2" fill="url(#waxShade)"/>
+        <line x1="20" y1="26" x2="20" y2="20" stroke="#3a3228" stroke-width="1"/>
+        <path d="M 20 6 C 16 16, 16 22, 20 24 C 24 22, 24 16, 20 6 Z" fill="#FFD07B" opacity="0.9"/>
+        <path d="M 20 8 C 18 15, 18 20, 20 22 C 22 20, 22 15, 20 8 Z" fill="#FFB03A"/>
+      </svg>
+    `;
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderCandles() {
+      const wall = document.getElementById('candleWall');
+      const summary = document.getElementById('candleSummary');
+      const printList = document.getElementById('candlePrintList');
+      const candles = getStoredCandles();
+
+      wall.innerHTML = '';
+      if (printList) printList.innerHTML = '';
+
+      if (!candles.length) {
+        const empty = document.createElement('p');
+        empty.className = 'candle-wall-empty';
+        empty.textContent = 'No candles lit yet — be the first to leave a light.';
+        wall.appendChild(empty);
+        summary.textContent = '';
+        return;
+      }
+
+      const newestFirst = candles.slice().reverse();
+      const displayed = newestFirst.slice(0, MAX_CANDLES_DISPLAY);
+
+      displayed.forEach((candle) => {
+        const entry = document.createElement('div');
+        entry.className = 'candle-entry';
+
+        const iso = new Date(candle.timestamp).toISOString();
+
+        entry.innerHTML = `
+          ${candleSVG}
+          <div class="candle-entry-name">${escapeHTML(candle.name)}</div>
+          ${candle.message ? `<div class="candle-entry-message">“${escapeHTML(candle.message)}”</div>` : ''}
+          <div class="candle-entry-time"><time datetime="${iso}">${formatRelativeTime(candle.timestamp)}</time></div>
+          <button type="button" class="candle-entry-remove" data-id="${candle.id}" aria-label="Remove this candle">Remove</button>
+        `;
+        wall.appendChild(entry);
+      });
+
+      const total = candles.length;
+      summary.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
+
+      wall.querySelectorAll('.candle-entry-remove').forEach(btn => {
+        btn.addEventListener('click', () => removeCandle(btn.getAttribute('data-id')));
+      });
+
+      if (printList) {
+        const h3 = document.createElement('h3');
+        h3.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
+        printList.appendChild(h3);
+
+        const ul = document.createElement('ul');
+        newestFirst.forEach(c => {
+          const li = document.createElement('li');
+          const strong = document.createElement('strong');
+          strong.textContent = c.name;
+          li.appendChild(strong);
+          if (c.message) {
+            li.appendChild(document.createTextNode(' — “' + c.message + '”'));
+          }
+          ul.appendChild(li);
+        });
+        printList.appendChild(ul);
+      }
+    }
+
+    function submitCandle(event) {
+      event.preventDefault();
+      const nameInput = document.getElementById('candleName');
+      const messageInput = document.getElementById('candleMessage');
+      const hint = document.getElementById('candleHint');
+
+      const name = nameInput.value.trim();
+      const message = messageInput.value.trim();
+
+      if (!name) {
+        hint.textContent = 'Please enter your name to light a candle.';
+        hint.classList.add('error');
+        nameInput.focus();
+        return;
+      }
+
+      const candles = getStoredCandles();
+      candles.push({
+        id: 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+        name: name,
+        message: message,
+        timestamp: Date.now()
+      });
+      storeCandles(candles);
+
+      nameInput.value = '';
+      messageInput.value = '';
+      hint.textContent = 'Your candle is kept on this device only.';
+      hint.classList.remove('error');
+
+      renderCandles();
+    }
+
+    function removeCandle(id) {
+      if (!window.confirm('Remove this candle from the wall?')) return;
+      const candles = getStoredCandles().filter(c => c.id !== id);
+      storeCandles(candles);
+      renderCandles();
+    }
+
+    renderCandles();
+
+    let candleTick = null;
+    function startCandleTicker() {
+      if (candleTick) return;
+      candleTick = setInterval(() => {
+        const candles = getStoredCandles();
+        if (!candles.length) return;
+        const newestFirst = candles.slice().reverse();
+        document.querySelectorAll('.candle-entry-time time').forEach((el, i) => {
+          const c = newestFirst[i];
+          if (c) el.textContent = formatRelativeTime(c.timestamp);
+        });
+      }, 60000);
+    }
+    startCandleTicker();
+
+    /* ══════════════════════════════════════
+       GALLERY & LIGHTBOX
+       ══════════════════════════════════════ */
+    const galleryData = {
+      memories: [
+        // { src: 'photos/rael-01.jpg', caption: 'Childhood in Makueni' },
+        // { src: 'photos/rael-02.jpg', caption: 'Wedding day' },
+      ]
+    };
+
+    const allPhotos = galleryData.memories.filter(p => p && p.src);
+
+    (function buildGallery() {
+      const section = document.getElementById('gallery');
+      const navLink = document.querySelector('.nav-bar a[href="#gallery"]');
+      const grid = document.querySelector('.gallery-grid');
+
+      if (!allPhotos.length) {
+        section.hidden = true;
+        if (navLink) navLink.hidden = true;
+        return;
+      }
+
+      section.hidden = false;
+      if (navLink) navLink.hidden = false;
+
+      allPhotos.forEach((p, idx) => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+        item.setAttribute('role', 'button');
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('aria-label', `View photo: ${p.caption}`);
+        item.innerHTML = `
+          <img src="${p.src}" alt="${escapeHTML(p.caption)}" loading="lazy">
+          <span class="gallery-zoom" aria-hidden="true">⤢</span>
+          <div class="gallery-caption">${escapeHTML(p.caption)}</div>
+        `;
+        item.addEventListener('click', () => openLightbox(idx));
+        item.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(idx); }
+        });
+        grid.appendChild(item);
+      });
+    })();
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
+    const lightboxCounter = document.getElementById('lightboxCounter');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
+    let currentPhoto = 0;
+    let lastFocusedElement = null;
+
+    function updateLightboxContent() {
+      const p = allPhotos[currentPhoto];
+      lightboxImg.src = p.src;
+      lightboxImg.alt = p.caption;
+      lightboxCaption.textContent = p.caption;
+      lightboxCounter.textContent = `Photo ${currentPhoto + 1} of ${allPhotos.length}`;
+      const multi = allPhotos.length > 1;
+      lightboxPrev.hidden = !multi;
+      lightboxNext.hidden = !multi;
+    }
+
+    function openLightbox(index) {
+      if (!allPhotos.length) return;
+      currentPhoto = index;
+      lastFocusedElement = document.activeElement;
+      updateLightboxContent();
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('lightboxClose').focus();
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+      if (lastFocusedElement) lastFocusedElement.focus();
+    }
+
+    function navigateLightbox(dir) {
+      if (allPhotos.length < 2) return;
+      currentPhoto = (currentPhoto + dir + allPhotos.length) % allPhotos.length;
+      updateLightboxContent();
+    }
+
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+    lightboxNext.addEventListener('click', () => navigateLightbox(1));
+
+    document.addEventListener('keydown', (e) => {
+      if (!lightbox.classList.contains('open')) return;
+
+      if (e.key === 'Escape')     { closeLightbox(); return; }
+      if (e.key === 'ArrowLeft')  { navigateLightbox(-1); return; }
+      if (e.key === 'ArrowRight') { navigateLightbox(1);  return; }
+
+      if (e.key === 'Tab') {
+        const focusables = Array.from(lightbox.querySelectorAll('button:not([hidden])'));
+        if (!focusables.length) return;
+        const first = focusables[0];
+        const last  = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        }
+      }
+    });
+
+    let touchStartX = 0;
+    lightbox.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    lightbox.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 40) navigateLightbox(1);
+      if (touchEndX > touchStartX + 40) navigateLightbox(-1);
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
