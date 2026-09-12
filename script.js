@@ -40,6 +40,53 @@
     }, { passive: true });
 
     /* ══════════════════════════════════════
+       NAV MENU TOGGLE (medium screens)
+       ══════════════════════════════════════ */
+    (function navMenuToggle() {
+      const toggle = document.getElementById('navMenuToggle');
+      const links = document.getElementById('navLinks');
+      if (!toggle || !links) return;
+
+      function closeMenu() {
+        links.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      function openMenu() {
+        links.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+      }
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (links.classList.contains('open')) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      });
+
+      links.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!links.contains(e.target) && e.target !== toggle) closeMenu();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && links.classList.contains('open')) {
+          closeMenu();
+          toggle.focus();
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 1099 || window.innerWidth <= 720) closeMenu();
+      }, { passive: true });
+    })();
+
+    /* ══════════════════════════════════════
        SCROLL: PROGRESS, RING, BACK-TO-TOP
        ══════════════════════════════════════ */
     (function scrollHandlers() {

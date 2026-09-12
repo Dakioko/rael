@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>In Loving Memory — Rael Ndeve</title>
+  <title>Rael Ndeve - Memorial</title>
 
   <meta name="description" content="A memorial programme celebrating the life of Rael Ndeve (1926–2026). Order of Service, Life Story, Candle Wall, Songs, Photo Gallery, and Acknowledgements.">
   <meta name="theme-color" content="#1C1712">
@@ -111,12 +111,17 @@
        ══════════════════════════════════════ -->
   <div class="nav-bar-wrapper">
     <nav class="nav-bar" aria-label="Memorial programme sections">
-      <a href="#service">Programme</a>
-      <a href="#story">Life Story</a>
-      <a href="#tribute">Candle Wall</a>
-      <a href="#songs">Songs</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#thanks">Acknowledgements</a>
+      <button type="button" class="nav-menu-toggle" id="navMenuToggle" aria-expanded="false" aria-controls="navLinks">
+        Menu <span class="nav-menu-caret" aria-hidden="true">▾</span>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="#service">Programme</a>
+        <a href="#Eulogy">Eulogy</a>
+        <a href="#tribute">Candles</a>
+        <a href="#songs">Songs</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#thanks">Thanks</a>
+      </div>
     </nav>
     <div class="progress-container">
       <div class="progress-bar" id="progressBar"></div>
@@ -177,7 +182,7 @@
             </tr>
             <tr>
               <td class="col-time">10:50 AM</td>
-              <td class="col-activity">Reading of the Life Story</td>
+              <td class="col-activity">Reading of the Eulogy</td>
             </tr>
             <tr>
               <td class="col-time">11:30 AM</td>
@@ -208,7 +213,7 @@
          ══════════════════════════════════════ -->
     <section id="story" class="section-card" aria-labelledby="story-title">
       <div class="section-header">
-        <h2 class="section-title" id="story-title">Life Story</h2>
+        <h2 class="section-title" id="story-title">Eulogy</h2>
         <div class="section-divider"></div>
       </div>
 

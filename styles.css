@@ -394,13 +394,76 @@
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
+      position: relative;
+    }
+
+    .nav-menu-toggle {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      padding: 15px 18px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .nav-menu-toggle:hover,
+    .nav-menu-toggle[aria-expanded="true"] { color: var(--gold-light); }
+
+    .nav-menu-caret {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      font-size: 0.75em;
+    }
+    .nav-menu-toggle[aria-expanded="true"] .nav-menu-caret { transform: rotate(180deg); }
+
+    .nav-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    @media (min-width: 721px) and (max-width: 1099px) {
+      .nav-menu-toggle { display: flex; }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        flex-direction: column;
+        width: max-content;
+        min-width: 200px;
+        background-color: var(--bg-card);
+        border: 1px solid var(--border);
+        border-top: none;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .nav-links.open { display: flex; }
+
+      .nav-links a {
+        padding: 14px 20px;
+        justify-content: flex-start;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+      .nav-links a:last-child { border-bottom: none; }
+
+      .nav-links a::after { display: none; }
     }
 
     .nav-bar a {
       color: var(--text-muted);
       text-decoration: none;
-      padding: 15px 18px;
-      font-size: 0.92rem;
+      padding: 15px 14px;
+      font-size: 0.88rem;
       font-weight: 500;
       letter-spacing: 0.5px;
       transition: color 0.3s ease;
