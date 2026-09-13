@@ -240,27 +240,25 @@
     }
 
     /* ══════════════════════════════════════
-       CANDLE WALL — device-local
+       CANDLE WALL — shared, real-time (Firebase Firestore)
        ══════════════════════════════════════ */
-    const CANDLE_STORAGE_KEY = 'rael-ndeve-memorial-candles-v1';
-    const MAX_CANDLES_DISPLAY = 24;
+    const MAX_CANDLES_DISPLAY = 48;
+    const CANDLES_COLLECTION = 'candles';
 
-    function getStoredCandles() {
-      try {
-        const raw = localStorage.getItem(CANDLE_STORAGE_KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) { return []; }
+    let db = null;
+    let firebaseReady = false;
+    try {
+      if (window.firebase && window.FIREBASE_CONFIG) {
+        firebase.initializeApp(window.FIREBASE_CONFIG);
+        db = firebase.firestore();
+        firebaseReady = true;
+      }
+    } catch (e) {
+      firebaseReady = false;
     }
 
-    function storeCandles(candles) {
-      try { localStorage.setItem(CANDLE_STORAGE_KEY, JSON.stringify(candles)); }
-      catch (e) { /* silent */ }
-    }
-
-    function formatRelativeTime(timestamp) {
-      const diff = Date.now() - timestamp;
+    function formatRelativeTime(date) {
+      const diff = Date.now() - date.getTime();
       const mins = Math.floor(diff / 60000);
       if (mins < 1) return 'just now';
       if (mins < 60) return mins + 'm ago';
@@ -290,14 +288,25 @@
         .replace(/'/g, '&#39;');
     }
 
-    function renderCandles() {
+    let latestCandles = [];
+
+    function renderCandles(candles) {
+      latestCandles = candles;
       const wall = document.getElementById('candleWall');
       const summary = document.getElementById('candleSummary');
       const printList = document.getElementById('candlePrintList');
-      const candles = getStoredCandles();
 
       wall.innerHTML = '';
       if (printList) printList.innerHTML = '';
+
+      if (!firebaseReady) {
+        const err = document.createElement('p');
+        err.className = 'candle-wall-empty';
+        err.textContent = 'The candle wall is temporarily unavailable — please check back shortly.';
+        wall.appendChild(err);
+        summary.textContent = '';
+        return;
+      }
 
       if (!candles.length) {
         const empty = document.createElement('p');
@@ -308,21 +317,16 @@
         return;
       }
 
-      const newestFirst = candles.slice().reverse();
-      const displayed = newestFirst.slice(0, MAX_CANDLES_DISPLAY);
-
-      displayed.forEach((candle) => {
+      candles.forEach((candle) => {
         const entry = document.createElement('div');
         entry.className = 'candle-entry';
-
-        const iso = new Date(candle.timestamp).toISOString();
+        const iso = candle.date.toISOString();
 
         entry.innerHTML = `
           ${candleSVG}
           <div class="candle-entry-name">${escapeHTML(candle.name)}</div>
           ${candle.message ? `<div class="candle-entry-message">“${escapeHTML(candle.message)}”</div>` : ''}
-          <div class="candle-entry-time"><time datetime="${iso}">${formatRelativeTime(candle.timestamp)}</time></div>
-          <button type="button" class="candle-entry-remove" data-id="${candle.id}" aria-label="Remove this candle">Remove</button>
+          <div class="candle-entry-time"><time datetime="${iso}">${formatRelativeTime(candle.date)}</time></div>
         `;
         wall.appendChild(entry);
       });
@@ -330,17 +334,13 @@
       const total = candles.length;
       summary.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
 
-      wall.querySelectorAll('.candle-entry-remove').forEach(btn => {
-        btn.addEventListener('click', () => removeCandle(btn.getAttribute('data-id')));
-      });
-
       if (printList) {
         const h3 = document.createElement('h3');
         h3.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
         printList.appendChild(h3);
 
         const ul = document.createElement('ul');
-        newestFirst.forEach(c => {
+        candles.forEach(c => {
           const li = document.createElement('li');
           const strong = document.createElement('strong');
           strong.textContent = c.name;
@@ -354,11 +354,33 @@
       }
     }
 
-    function submitCandle(event) {
+    function subscribeToCandles() {
+      if (!firebaseReady) { renderCandles([]); return; }
+      db.collection(CANDLES_COLLECTION)
+        .orderBy('timestamp', 'desc')
+        .limit(MAX_CANDLES_DISPLAY)
+        .onSnapshot((snapshot) => {
+          const candles = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              name: data.name || '',
+              message: data.message || '',
+              date: data.timestamp ? data.timestamp.toDate() : new Date()
+            };
+          });
+          renderCandles(candles);
+        }, () => {
+          renderCandles([]);
+        });
+    }
+    subscribeToCandles();
+
+    async function submitCandle(event) {
       event.preventDefault();
       const nameInput = document.getElementById('candleName');
       const messageInput = document.getElementById('candleMessage');
       const hint = document.getElementById('candleHint');
+      const submitBtn = document.getElementById('candleSubmitBtn');
 
       const name = nameInput.value.trim();
       const message = messageInput.value.trim();
@@ -370,42 +392,40 @@
         return;
       }
 
-      const candles = getStoredCandles();
-      candles.push({
-        id: 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
-        name: name,
-        message: message,
-        timestamp: Date.now()
-      });
-      storeCandles(candles);
+      if (!firebaseReady) {
+        hint.textContent = 'The candle wall is temporarily unavailable — please try again shortly.';
+        hint.classList.add('error');
+        return;
+      }
 
-      nameInput.value = '';
-      messageInput.value = '';
-      hint.textContent = 'Your candle is kept on this device only.';
+      submitBtn.disabled = true;
       hint.classList.remove('error');
+      hint.textContent = 'Lighting your candle…';
 
-      renderCandles();
+      try {
+        const payload = { name, timestamp: firebase.firestore.FieldValue.serverTimestamp() };
+        if (message) payload.message = message;
+        await db.collection(CANDLES_COLLECTION).add(payload);
+
+        nameInput.value = '';
+        messageInput.value = '';
+        hint.textContent = 'Your candle is now lit for everyone to see.';
+      } catch (e) {
+        hint.textContent = 'Something went wrong — please try again.';
+        hint.classList.add('error');
+      } finally {
+        submitBtn.disabled = false;
+      }
     }
-
-    function removeCandle(id) {
-      if (!window.confirm('Remove this candle from the wall?')) return;
-      const candles = getStoredCandles().filter(c => c.id !== id);
-      storeCandles(candles);
-      renderCandles();
-    }
-
-    renderCandles();
 
     let candleTick = null;
     function startCandleTicker() {
       if (candleTick) return;
       candleTick = setInterval(() => {
-        const candles = getStoredCandles();
-        if (!candles.length) return;
-        const newestFirst = candles.slice().reverse();
+        if (!latestCandles.length) return;
         document.querySelectorAll('.candle-entry-time time').forEach((el, i) => {
-          const c = newestFirst[i];
-          if (c) el.textContent = formatRelativeTime(c.timestamp);
+          const c = latestCandles[i];
+          if (c) el.textContent = formatRelativeTime(c.date);
         });
       }, 60000);
     }
