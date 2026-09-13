@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem('rael-theme'); } catch (e) {}
+      var theme = (saved === 'dark') ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rael Ndeve - Memorial</title>
 
-  <meta name="description" content="A memorial programme celebrating the life of Rael Ndeve (1926–2026). Order of Service, Life Story, Candle Wall, Songs, Photo Gallery, and Acknowledgements.">
-  <meta name="theme-color" content="#1C1712">
-  <meta name="color-scheme" content="dark">
+  <meta name="description" content="A memorial programme celebrating the life of Rael Ndeve (1926–2026). Order of Service, Eulogy, Candle Wall, Hymns, Photo Gallery, and Acknowledgements.">
+  <meta name="theme-color" content="#FAF6EF" id="themeColorMeta">
+  <meta name="color-scheme" content="light dark">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="In Loving Memory of Rael Ndeve">
@@ -16,13 +24,31 @@
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:url" content="https://raelmemorial.netlify.app/">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="In Loving Memory of Rael Ndeve">
+  <meta name="twitter:description" content="A memorial programme celebrating the life of Rael Ndeve (1926–2026). Service at Masue Village, Makueni County.">
+  <meta name="twitter:image" content="https://raelmemorial.netlify.app/img/og-image.jpg">
+
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2314110D'/%3E%3Ctext x='32' y='44' text-anchor='middle' fill='%23BD7A3E' font-family='Georgia,serif' font-size='36' font-style='italic'%3ER%3C/text%3E%3C/svg%3E">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,300;1,400;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Rael Ndeve",
+    "birthDate": "1926-03-14",
+    "deathDate": "2026-09-09",
+    "description": "A memorial programme celebrating the life of Rael Ndeve (1926–2026).",
+    "url": "https://raelmemorial.netlify.app/"
+  }
+  </script>
 
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -76,7 +102,7 @@
 
           <div class="hero-actions">
             <a href="https://maps.google.com/?q=Masue+Village,+Makueni+County,+Kenya"
-               target="_blank" rel="noopener noreferrer" class="btn-pill">
+               target="_blank" rel="noopener noreferrer" class="btn-pill btn-pill-primary">
               <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12 2 L 21 21 L 12 17 L 3 21 Z"/>
                 <line x1="12" y1="2" x2="12" y2="17"/>
@@ -89,7 +115,7 @@
               </svg>
               View programme
             </a>
-            <button type="button" class="btn-pill btn-pill-ghost" onclick="shareThis()">
+            <button type="button" class="btn-pill btn-pill-quiet" onclick="shareThis()">
               <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="18" cy="5" r="3"/>
                 <circle cx="6" cy="12" r="3"/>
@@ -111,17 +137,12 @@
        ══════════════════════════════════════ -->
   <div class="nav-bar-wrapper">
     <nav class="nav-bar" aria-label="Memorial programme sections">
-      <button type="button" class="nav-menu-toggle" id="navMenuToggle" aria-expanded="false" aria-controls="navLinks">
-        Menu <span class="nav-menu-caret" aria-hidden="true">▾</span>
-      </button>
-      <div class="nav-links" id="navLinks">
-        <a href="#service">Programme</a>
-        <a href="#Eulogy">Eulogy</a>
-        <a href="#tribute">Candles</a>
-        <a href="#songs">Songs</a>
-        <a href="#gallery">Gallery</a>
-        <a href="#thanks">Thanks</a>
-      </div>
+      <a href="#service">Programme</a>
+      <a href="#eulogy">Eulogy</a>
+      <a href="#tribute">Candles</a>
+      <a href="#hymns">Hymns</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#thanks">Thanks</a>
     </nav>
     <div class="progress-container">
       <div class="progress-bar" id="progressBar"></div>
@@ -208,12 +229,12 @@
     </section>
 
     <!-- ══════════════════════════════════════
-         LIFE STORY
+         EULOGY
          ⚠️ Placeholders remain: [BIRTHPLACE] and [SPOUSE NAME]
          ══════════════════════════════════════ -->
-    <section id="story" class="section-card" aria-labelledby="story-title">
+    <section id="eulogy" class="section-card" aria-labelledby="eulogy-title">
       <div class="section-header">
-        <h2 class="section-title" id="story-title">Eulogy</h2>
+        <h2 class="section-title" id="eulogy-title">Eulogy</h2>
         <div class="section-divider"></div>
       </div>
 
@@ -240,7 +261,7 @@
     <!-- ══════════════════════════════════════
          CANDLE WALL
          ══════════════════════════════════════ -->
-    <section id="tribute" class="section-card candle-section" aria-labelledby="candle-title">
+    <section id="tribute" class="section-card section-card--alt candle-section" aria-labelledby="candle-title">
       <div class="section-header">
         <h2 class="section-title" id="candle-title">Candle Wall</h2>
         <div class="section-divider"></div>
@@ -286,15 +307,15 @@
     </section>
 
     <!-- ══════════════════════════════════════
-         SONGS
+         HYMNS
          ══════════════════════════════════════ -->
-    <section id="songs" class="section-card" aria-labelledby="songs-title">
+    <section id="hymns" class="section-card" aria-labelledby="hymns-title">
       <div class="section-header">
-        <h2 class="section-title" id="songs-title">Songs &amp; Hymns</h2>
+        <h2 class="section-title" id="hymns-title">Hymns</h2>
         <div class="section-divider"></div>
       </div>
 
-      <div class="songs-grid">
+      <div class="hymns-grid">
         <div class="song-card">
           <span class="song-number">Hymn 1</span>
           <div class="song-title">Amazing Grace</div>
@@ -339,7 +360,7 @@
          PHOTO GALLERY
          Hidden until real photos are supplied.
          ══════════════════════════════════════ -->
-    <section id="gallery" class="section-card" aria-labelledby="gallery-title" hidden>
+    <section id="gallery" class="section-card section-card--alt" aria-labelledby="gallery-title" hidden>
       <div class="section-header">
         <h2 class="section-title" id="gallery-title">Precious Memories</h2>
         <div class="section-divider"></div>
@@ -366,6 +387,8 @@
       <div class="family-signature">
         — The Ndeve Family —
       </div>
+
+      <div class="section-divider divider-spaced"></div>
     </section>
 
   </main>
@@ -375,7 +398,7 @@
        ══════════════════════════════════════ -->
   <div class="footer-share">
     <div class="footer-share-buttons">
-      <button type="button" class="btn-pill btn-pill-ghost" onclick="shareThis()">
+      <button type="button" class="btn-pill btn-pill-quiet" onclick="shareThis()">
         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <circle cx="18" cy="5" r="3"/>
           <circle cx="6" cy="12" r="3"/>
@@ -387,6 +410,23 @@
       </button>
     </div>
   </div>
+
+  <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to dark mode" aria-pressed="false" title="Toggle light/dark mode">
+    <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4"/>
+      <line x1="12" y1="2" x2="12" y2="4.5"/>
+      <line x1="12" y1="19.5" x2="12" y2="22"/>
+      <line x1="4.2" y1="4.2" x2="6" y2="6"/>
+      <line x1="18" y1="18" x2="19.8" y2="19.8"/>
+      <line x1="2" y1="12" x2="4.5" y2="12"/>
+      <line x1="19.5" y1="12" x2="22" y2="12"/>
+      <line x1="4.2" y1="19.8" x2="6" y2="18"/>
+      <line x1="18" y1="6" x2="19.8" y2="4.2"/>
+    </svg>
+    <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/>
+    </svg>
+  </button>
 
   <button
     class="back-to-top"
@@ -411,10 +451,11 @@
       <p class="lightbox-counter" id="lightboxCounter" aria-live="polite"></p>
       <img id="lightboxImg" src="" alt="">
       <p class="lightbox-caption" id="lightboxCaption"></p>
+      <p class="lightbox-hint" id="lightboxHint">Use ← → keys to navigate · Press Esc to close</p>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 
 </body>
 </html>

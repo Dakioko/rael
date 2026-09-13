@@ -1,90 +1,66 @@
-    /* ══════════════════════════════════════
-       FLOATING PETALS
+/* ══════════════════════════════════════
+       THEME TOGGLE (light default / dark opt-in)
        ══════════════════════════════════════ */
-    function createPetals() {
+    (function themeToggle() {
+      const toggle = document.getElementById('themeToggle');
+      const root = document.documentElement;
+      const themeColorMeta = document.getElementById('themeColorMeta');
+      if (!toggle) return;
+
+      const LIGHT_THEME_COLOR = '#FAF6EF';
+      const DARK_THEME_COLOR = '#14110D';
+
+      function applyLabel(theme) {
+        const isDark = theme === 'dark';
+        toggle.setAttribute('aria-pressed', String(isDark));
+        toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+        if (themeColorMeta) {
+          themeColorMeta.setAttribute('content', isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
+        }
+      }
+
+      // Sync label with whatever the inline head script already applied
+      applyLabel(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+      toggle.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        applyLabel(next);
+        try { localStorage.setItem('rael-theme', next); } catch (e) {}
+      });
+    })();
+
+    /* ══════════════════════════════════════
+       RISING EMBERS
+       ══════════════════════════════════════ */
+    function createEmbers() {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (window.innerWidth < 680) return;
       const container = document.getElementById('petals');
       if (!container) return;
       container.innerHTML = '';
 
-      const count = window.innerWidth < 680 ? 8 : 14;
-      const petalSVG = `
-        <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 1 C 14 5, 16 10, 14 15 C 12 18, 8 18, 6 15 C 4 10, 6 5, 10 1 Z"
-                fill="rgba(232, 213, 163, 0.45)"
-                stroke="rgba(227, 173, 110, 0.35)"
-                stroke-width="0.5"/>
-          <path d="M10 3 L 10 16" stroke="rgba(227, 173, 110, 0.25)" stroke-width="0.4" fill="none"/>
-        </svg>
-      `;
-
+      const count = 16;
       for (let i = 0; i < count; i++) {
         const p = document.createElement('div');
         p.className = 'petal';
-        p.innerHTML = petalSVG;
         p.style.left = Math.random() * 100 + '%';
-        p.style.animationDuration = (14 + Math.random() * 16) + 's';
-        p.style.animationDelay = (Math.random() * 18) + 's';
-        const size = 12 + Math.random() * 10;
+        p.style.animationDuration = (10 + Math.random() * 14) + 's';
+        p.style.animationDelay = (Math.random() * 16) + 's';
+        const size = 3 + Math.random() * 5;
         p.style.width = size + 'px';
         p.style.height = size + 'px';
         container.appendChild(p);
       }
     }
-    createPetals();
+    createEmbers();
 
     let petalResizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(petalResizeTimer);
-      petalResizeTimer = setTimeout(createPetals, 300);
+      petalResizeTimer = setTimeout(createEmbers, 300);
     }, { passive: true });
-
-    /* ══════════════════════════════════════
-       NAV MENU TOGGLE (medium screens)
-       ══════════════════════════════════════ */
-    (function navMenuToggle() {
-      const toggle = document.getElementById('navMenuToggle');
-      const links = document.getElementById('navLinks');
-      if (!toggle || !links) return;
-
-      function closeMenu() {
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-      }
-
-      function openMenu() {
-        links.classList.add('open');
-        toggle.setAttribute('aria-expanded', 'true');
-      }
-
-      toggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (links.classList.contains('open')) {
-          closeMenu();
-        } else {
-          openMenu();
-        }
-      });
-
-      links.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', closeMenu);
-      });
-
-      document.addEventListener('click', (e) => {
-        if (!links.contains(e.target) && e.target !== toggle) closeMenu();
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && links.classList.contains('open')) {
-          closeMenu();
-          toggle.focus();
-        }
-      });
-
-      window.addEventListener('resize', () => {
-        if (window.innerWidth > 1099 || window.innerWidth <= 720) closeMenu();
-      }, { passive: true });
-    })();
 
     /* ══════════════════════════════════════
        SCROLL: PROGRESS, RING, BACK-TO-TOP
@@ -498,6 +474,8 @@
       const multi = allPhotos.length > 1;
       lightboxPrev.hidden = !multi;
       lightboxNext.hidden = !multi;
+      const hint = document.getElementById('lightboxHint');
+      if (hint) hint.hidden = !multi;
     }
 
     function openLightbox(index) {
