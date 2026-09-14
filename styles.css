@@ -898,18 +898,22 @@
     .candle-form-hint.error { color: var(--color-error); }
 
     .candle-wall {
-      display: flex;
-      flex-direction: column;
       margin-top: 8px;
-      padding-top: 24px;
+      padding: 24px 4px 4px;
       border-top: 1px solid var(--border);
       min-height: 100px;
-      max-height: 520px;
+      max-height: 620px;
       overflow-y: auto;
       scrollbar-width: thin;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px 4px;
     }
 
     .candle-wall-empty {
+      flex-basis: 100%;
       text-align: center;
       font-size: 0.85rem;
       color: var(--text-muted);
@@ -921,6 +925,7 @@
     .candle-wall-empty.is-error { color: var(--color-error); }
 
     .candle-retry {
+      flex-basis: 100%;
       margin: 14px auto 0;
       font-size: 0.7rem;
       padding: 9px 16px;
@@ -934,39 +939,39 @@
       padding: 10px 20px;
     }
 
-    .candle-entry {
-      position: relative;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 9px 4px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-      animation: candleAppear 0.4s ease;
-    }
-
-    .candle-entry:last-child { border-bottom: none; }
-
     @keyframes candleAppear {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(6px) scale(0.8); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .candle-entry-svg { width: 16px; height: 24px; flex-shrink: 0; margin-top: 3px; filter: drop-shadow(0 0 6px rgba(255, 176, 58, 0.18)); }
-
-    .candle-entry-body {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
+    .candle-flame {
+      position: relative;
+      display: block;
+      line-height: 0;
+      background: none;
+      border: none;
+      padding: 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      animation: candleAppear 0.4s ease;
+      transition: transform 0.2s ease;
     }
 
-    .candle-entry-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 8px;
+    .candle-flame:hover,
+    .candle-flame.is-selected {
+      transform: translateY(-3px);
+    }
+
+    .candle-flame:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--gold-dim);
+    }
+
+    .candle-flame-svg {
+      display: block;
+      width: var(--flame-size, 18px);
+      height: calc(var(--flame-size, 18px) * 1.5);
+      filter: drop-shadow(0 0 6px rgba(255, 176, 58, 0.18));
     }
 
     @keyframes flameFlicker {
@@ -976,70 +981,91 @@
       75%      { opacity: 0.8;  transform: scale(0.98) rotate(-0.5deg); }
     }
 
-    .candle-entry-svg path[fill="#FFD07B"],
-    .candle-entry-svg path[fill="#FFB03A"] {
+    .candle-flame-svg path[fill="#FFD07B"],
+    .candle-flame-svg path[fill="#FFB03A"] {
       animation: flameFlicker 2.5s ease-in-out infinite;
       transform-origin: 20px 24px;
     }
 
-    .candle-entry.is-new .candle-entry-svg {
+    .candle-flame.is-new .candle-flame-svg {
       filter: drop-shadow(0 0 14px rgba(255, 176, 58, 0.75));
     }
 
-    .candle-entry.is-mine .candle-entry-svg {
-      filter: drop-shadow(0 0 18px rgba(255, 176, 58, 0.9));
+    .candle-flame.is-mine .candle-flame-svg,
+    .candle-flame.is-selected .candle-flame-svg {
+      filter: drop-shadow(0 0 16px rgba(255, 176, 58, 0.85));
     }
 
-    .candle-entry-name {
+    .candle-wall-hint {
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.4px;
+      font-style: italic;
+      font-family: var(--font-heading);
+      margin-top: 10px;
+    }
+
+    .candle-detail {
+      max-width: 480px;
+      margin: 16px auto 0;
+      padding: 16px 22px;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      text-align: center;
+      animation: candleAppear 0.3s ease;
+    }
+
+    .candle-detail-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .candle-detail-name {
       font-family: var(--font-heading);
       font-style: italic;
-      font-size: 0.88rem;
-      color: var(--gold-light);
-      line-height: 1.2;
+      font-size: 1.05rem;
       font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      flex: 1 1 auto;
-      min-width: 0;
+      color: var(--gold-light);
     }
 
-    .candle-entry-message {
-      font-size: 0.74rem;
-      color: var(--text-body);
-      line-height: 1.4;
-      font-style: italic;
-      max-width: 100%;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-
-    .candle-entry-time {
+    .candle-detail-time {
       font-size: 0.65rem;
       color: var(--text-muted);
       letter-spacing: 0.3px;
       text-transform: uppercase;
-      white-space: nowrap;
-      flex-shrink: 0;
     }
 
-    .candle-entry-remove {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 2px 6px;
-      font-family: var(--font-body);
-      opacity: 0;
-      transition: opacity 0.3s ease, color 0.3s ease;
+    .candle-detail-message {
+      position: relative;
+      font-family: var(--font-heading);
+      font-style: normal;
+      font-weight: 500;
+      font-size: 1.05rem;
+      color: var(--text-body);
+      line-height: 1.6;
+      margin-top: 10px;
+      padding: 0 6px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
-    .candle-entry:hover .candle-entry-remove,
-    .candle-entry:focus-within .candle-entry-remove { opacity: 1; }
-    .candle-entry-remove:hover { color: var(--color-error); }
+    .candle-detail-message::before,
+    .candle-detail-message::after {
+      font-family: Georgia, serif;
+      font-size: 1.4em;
+      font-style: normal;
+      color: var(--gold-dim);
+      line-height: 0;
+      vertical-align: -0.32em;
+    }
+
+    .candle-detail-message::before { content: '“'; margin-right: 2px; }
+    .candle-detail-message::after { content: '”'; margin-left: 2px; }
 
     .candle-count-summary {
       text-align: center;
@@ -1227,11 +1253,11 @@
       height: 28px;
       border-radius: 50%;
       background: rgba(20, 17, 13, 0.75);
-      border: 1px solid var(--border);
+      border: 1px solid rgba(227, 173, 110, 0.35);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--gold-light);
+      color: #E3AD6E;
       font-size: 0.85rem;
       opacity: 0;
       transition: opacity 0.3s ease;
@@ -1536,13 +1562,10 @@
       .candle-form-row { flex-direction: column; gap: 10px; }
       .candle-form-footer { flex-direction: column; align-items: stretch; }
       .candle-form-footer .btn-pill { justify-content: center; }
-      .candle-wall { max-height: 420px; }
-      .candle-entry { gap: 8px; padding: 8px 2px; }
-      .candle-entry-svg { width: 14px; height: 21px; margin-top: 2px; }
-      .candle-entry-header { flex-direction: column; align-items: flex-start; gap: 0; }
-      .candle-entry-name { font-size: 0.82rem; max-width: 100%; }
-      .candle-entry-message { font-size: 0.68rem; line-height: 1.35; }
-      .candle-entry-time { font-size: 0.6rem; }
+      .candle-wall { max-height: 420px; gap: 2px 3px; }
+      .candle-detail-header { flex-direction: column; gap: 2px; }
+      .candle-detail-name { font-size: 0.92rem; }
+      .candle-detail-message { font-size: 0.82rem; }
 
       .btn-pill { padding: 11px 18px; font-size: 0.72rem; letter-spacing: 1.2px; }
       .hero-actions { gap: 10px; }
@@ -1557,7 +1580,7 @@
        TOUCH DEVICE — disable sticky hover
        ══════════════════════════════════════ */
     @media (hover: none) {
-      .candle-entry-remove { opacity: 1; }
+      .candle-flame:hover { transform: none; }
 
       .btn-pill:hover {
         color: var(--gold-light);
@@ -1591,7 +1614,6 @@
       .nav-bar a:hover::after { transform: translateX(-50%) scaleX(0); }
       .btn-toggle-lyrics:hover { color: var(--gold); }
       .btn-copy-hymn:hover { color: var(--text-muted); }
-      .candle-entry-remove:hover { color: var(--text-muted); }
     }
 
     /* ══════════════════════════════════════
@@ -1604,17 +1626,19 @@
       .nav-bar { animation: none; }
 
       .section-card { opacity: 1; transform: none; transition: none; }
-      .candle-entry { animation: none; }
+      .candle-flame { animation: none; }
+      .candle-detail { animation: none; }
       .lightbox.open { animation: none; }
       .song-card.is-highlighted { animation: none; }
 
-      .candle-entry-svg path[fill="#FFD07B"],
-      .candle-entry-svg path[fill="#FFB03A"] {
+      .candle-flame-svg path[fill="#FFD07B"],
+      .candle-flame-svg path[fill="#FFB03A"] {
         animation: none;
       }
 
-      .candle-entry.is-new .candle-entry-svg { filter: none; }
-      .candle-entry.is-mine .candle-entry-svg { filter: none; }
+      .candle-flame.is-new .candle-flame-svg { filter: none; }
+      .candle-flame.is-mine .candle-flame-svg { filter: none; }
+      .candle-flame.is-selected .candle-flame-svg { filter: none; }
       .btn-pill.is-lighting { animation: none; }
 
       .btn-pill, .back-to-top, .theme-toggle, .gallery-item, .gallery-item img,
@@ -1641,6 +1665,7 @@
       .hero-actions,
       .back-to-top, .theme-toggle, .footer-share, .share-toast,
       .candle-form, .candle-wall, .candle-count-summary,
+      .candle-wall-hint, .candle-detail,
       .btn-toggle-lyrics, .btn-copy-hymn, .song-card-actions,
       .candle-load-more, .privacy-note, .gallery-note { display: none !important; }
 
