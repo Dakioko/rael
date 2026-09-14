@@ -436,7 +436,6 @@ function renderLoadMore(mayHaveMore) {
   if (!mayHaveMore) return;
 
   const wall = document.getElementById('candleWall');
-  const summary = document.getElementById('candleSummary');
   if (!wall) return;
 
   const btn = document.createElement('button');
@@ -451,9 +450,8 @@ function renderLoadMore(mayHaveMore) {
     subscribeToCandles(false);
   });
 
-  // Place below the count summary rather than between the wall and it.
-  if (summary && summary.parentNode) summary.after(btn);
-  else wall.after(btn);
+  // Summary now sits above the wall, so anchor the button after the wall itself.
+  wall.after(btn);
 }
 
 function renderCandles(candles) {
@@ -485,9 +483,13 @@ function renderCandles(candles) {
     const iso = candle.date.toISOString();
     entry.innerHTML = `
       ${candleSVG}
-      <div class="candle-entry-name">${escapeHTML(candle.name)}</div>
-      ${candle.message ? `<div class="candle-entry-message">“${escapeHTML(candle.message)}”</div>` : ''}
-      <div class="candle-entry-time"><time datetime="${iso}">${formatRelativeTime(candle.date)}</time></div>
+      <div class="candle-entry-body">
+        <div class="candle-entry-header">
+          <span class="candle-entry-name">${escapeHTML(candle.name)}</span>
+          <time class="candle-entry-time" datetime="${iso}">${formatRelativeTime(candle.date)}</time>
+        </div>
+        ${candle.message ? `<div class="candle-entry-message">“${escapeHTML(candle.message)}”</div>` : ''}
+      </div>
     `;
     wall.appendChild(entry);
 

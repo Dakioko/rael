@@ -898,17 +898,18 @@
     .candle-form-hint.error { color: var(--color-error); }
 
     .candle-wall {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
-      gap: 30px 18px;
+      display: flex;
+      flex-direction: column;
       margin-top: 8px;
-      padding-top: 40px;
+      padding-top: 24px;
       border-top: 1px solid var(--border);
       min-height: 100px;
+      max-height: 520px;
+      overflow-y: auto;
+      scrollbar-width: thin;
     }
 
     .candle-wall-empty {
-      grid-column: 1 / -1;
       text-align: center;
       font-size: 0.85rem;
       color: var(--text-muted);
@@ -920,7 +921,6 @@
     .candle-wall-empty.is-error { color: var(--color-error); }
 
     .candle-retry {
-      grid-column: 1 / -1;
       margin: 14px auto 0;
       font-size: 0.7rem;
       padding: 9px 16px;
@@ -937,31 +937,37 @@
     .candle-entry {
       position: relative;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 9px;
-      padding: 0 6px 16px;
-      text-align: center;
-      animation: candleAppear 0.6s ease;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 4px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      animation: candleAppear 0.4s ease;
     }
 
-    .candle-entry::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 34px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
-    }
+    .candle-entry:last-child { border-bottom: none; }
 
     @keyframes candleAppear {
-      from { opacity: 0; transform: translateY(10px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .candle-entry-svg { width: 30px; height: 44px; filter: drop-shadow(0 0 10px rgba(255, 176, 58, 0.18)); }
+    .candle-entry-svg { width: 16px; height: 24px; flex-shrink: 0; margin-top: 3px; filter: drop-shadow(0 0 6px rgba(255, 176, 58, 0.18)); }
+
+    .candle-entry-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .candle-entry-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+    }
 
     @keyframes flameFlicker {
       0%, 100% { opacity: 0.9; transform: scale(1) rotate(0deg); }
@@ -987,16 +993,21 @@
     .candle-entry-name {
       font-family: var(--font-heading);
       font-style: italic;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       color: var(--gold-light);
       line-height: 1.2;
       font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1 1 auto;
+      min-width: 0;
     }
 
     .candle-entry-message {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--text-body);
-      line-height: 1.5;
+      line-height: 1.4;
       font-style: italic;
       max-width: 100%;
       word-wrap: break-word;
@@ -1004,11 +1015,12 @@
     }
 
     .candle-entry-time {
-      font-size: 0.72rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.3px;
       text-transform: uppercase;
-      margin-top: 2px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .candle-entry-remove {
@@ -1034,7 +1046,7 @@
       font-size: 0.78rem;
       color: var(--text-muted);
       letter-spacing: 1px;
-      margin-top: 20px;
+      margin: 20px 0 4px;
       text-transform: uppercase;
     }
 
@@ -1524,12 +1536,13 @@
       .candle-form-row { flex-direction: column; gap: 10px; }
       .candle-form-footer { flex-direction: column; align-items: stretch; }
       .candle-form-footer .btn-pill { justify-content: center; }
-      .candle-wall { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 18px 10px; }
-      .candle-entry { gap: 5px; padding: 0 4px 10px; }
-      .candle-entry-svg { width: 24px; height: 35px; }
-      .candle-entry-name { font-size: 0.82rem; }
+      .candle-wall { max-height: 420px; }
+      .candle-entry { gap: 8px; padding: 8px 2px; }
+      .candle-entry-svg { width: 14px; height: 21px; margin-top: 2px; }
+      .candle-entry-header { flex-direction: column; align-items: flex-start; gap: 0; }
+      .candle-entry-name { font-size: 0.82rem; max-width: 100%; }
       .candle-entry-message { font-size: 0.68rem; line-height: 1.35; }
-      .candle-entry-time { font-size: 0.62rem; margin-top: 0; }
+      .candle-entry-time { font-size: 0.6rem; }
 
       .btn-pill { padding: 11px 18px; font-size: 0.72rem; letter-spacing: 1.2px; }
       .hero-actions { gap: 10px; }
