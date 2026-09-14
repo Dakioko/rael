@@ -20,7 +20,7 @@ import {
 /* ══════════════════════════════════════
    CONFIG
    ══════════════════════════════════════ */
-const RECAPTCHA_SITE_KEY = '6Le2v7otAAAAADWcrqSoPo1tHX3b5KRQ0EgEB7Bi';
+const RECAPTCHA_SITE_KEY = 'PASTE_YOUR_RECAPTCHA_V3_SITE_KEY_HERE';
 const CANDLES_COLLECTION = 'candles';
 const CANDLES_PAGE_SIZE = 48;
 const SERVICE_END = new Date('2026-09-19T13:00:00+03:00');
@@ -271,29 +271,6 @@ function toggleLyrics(id, btn) {
 /* ══════════════════════════════════════
    HYMN DEEP-LINKING
    ══════════════════════════════════════ */
-function copyHymnLink(id, btn) {
-  const url = new URL(window.location.href);
-  url.hash = id;
-  const link = url.toString();
-
-  const done = () => {
-    const original = btn.textContent;
-    btn.textContent = '✓ Copied';
-    btn.disabled = true;
-    setTimeout(() => { btn.textContent = original; btn.disabled = false; }, 1600);
-  };
-
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(link).then(done).catch(() => showToast('Copy failed — ' + link));
-  } else {
-    showToast('Copy this link: ' + link);
-  }
-}
-
-document.querySelectorAll('.btn-copy-hymn').forEach(btn => {
-  btn.addEventListener('click', () => copyHymnLink(btn.dataset.hymn, btn));
-});
-
 (function openHymnFromHash() {
   const id = window.location.hash.replace('#', '');
   if (!id || !id.startsWith('hymn-')) return;
@@ -362,6 +339,7 @@ let hasLoadedOnce = false;
 let unsubscribeCandles = null;
 let candleLimit = CANDLES_PAGE_SIZE;
 let candleTick = null;
+let pendingScrollCandleId = null;
 
 try {
   if (window.FIREBASE_CONFIG) {
@@ -541,6 +519,17 @@ function renderCandles(candles) {
     });
     printList.appendChild(ul);
   }
+
+  if (pendingScrollCandleId) {
+    const target = wall.querySelector(`[data-id="${pendingScrollCandleId}"]`);
+    if (target) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      target.classList.add('is-mine');
+      setTimeout(() => target.classList.remove('is-mine'), 2400);
+    }
+    pendingScrollCandleId = null;
+  }
 }
 
 function subscribeToCandles(showLoading = true) {
@@ -616,13 +605,15 @@ async function submitCandle(event) {
   }
 
   submitBtn.disabled = true;
+  submitBtn.classList.add('is-lighting');
   hint.classList.remove('error');
   hint.textContent = 'Lighting your candle…';
 
   try {
     const payload = { name, timestamp: serverTimestamp() };
     if (message) payload.message = message;
-    await addDoc(collection(db, CANDLES_COLLECTION), payload);
+    const docRef = await addDoc(collection(db, CANDLES_COLLECTION), payload);
+    pendingScrollCandleId = docRef.id;
 
     nameInput.value = '';
     messageInput.value = '';
@@ -633,6 +624,7 @@ async function submitCandle(event) {
     hint.classList.add('error');
   } finally {
     submitBtn.disabled = false;
+    submitBtn.classList.remove('is-lighting');
   }
 }
 
@@ -663,8 +655,8 @@ window.addEventListener('beforeunload', () => { if (candleTick) clearInterval(ca
    ══════════════════════════════════════ */
 const galleryData = {
   memories: [
-    { src: 'photos/rael-1.jpg', caption: '' },
-    { src: 'photos/rael-2.jpg', caption: '' },
+    { src: 'photos/rael-1.jpg', caption: '', focus: 'top' },
+    { src: 'photos/rael-2.jpg', caption: '', focus: 'top' },
     { src: 'photos/rael-3.jpg', caption: '' },
     { src: 'photos/rael-4.jpg', caption: 'With family, March 2026' },
   ]
@@ -693,7 +685,7 @@ const allPhotos = galleryData.memories.filter(p => p && p.src);
     item.setAttribute('tabindex', '0');
     item.setAttribute('aria-label', `View photo: ${p.caption}`);
     item.innerHTML = `
-      <img src="${p.src}" alt="${escapeHTML(p.caption)}" loading="lazy">
+      <img src="${p.src}" alt="${escapeHTML(p.caption)}" loading="lazy" style="${p.focus === 'top' ? 'object-position: center 10%;' : ''}">
       <span class="gallery-zoom" aria-hidden="true">⤢</span>
       <div class="gallery-caption">${escapeHTML(p.caption)}</div>
     `;
