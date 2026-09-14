@@ -190,8 +190,8 @@
     <nav class="nav-bar" aria-label="Memorial programme sections">
       <a href="#service">Programme</a>
       <a href="#eulogy">Eulogy</a>
-      <a href="#tribute">Candles</a>
       <a href="#hymns">Hymns</a>
+      <a href="#tribute">Candles</a>
       <a href="#gallery">Gallery</a>
       <a href="#thanks">Thanks</a>
     </nav>
@@ -271,6 +271,60 @@
     </section>
 
     <!-- ══════════════════════════════════════
+         HYMNS
+         ══════════════════════════════════════ -->
+    <section id="hymns" class="section-card" aria-labelledby="hymns-title">
+      <div class="section-header">
+        <h2 class="section-title" id="hymns-title">Hymns</h2>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="hymns-grid">
+        <div class="song-card" id="hymn-1">
+          <span class="song-number">Hymn 1</span>
+          <div class="song-title">Amazing Grace</div>
+          <p class="song-lyric">
+            "Amazing grace, how sweet the sound,<br>
+            that saved a wretch like me…"
+          </p>
+          <div class="lyrics-expand open" id="lyrics1">
+            <p class="song-lyric">
+              I once was lost, but now am found;<br>
+              Was blind, but now I see.<br><br>
+              'Twas grace that taught my heart to fear,<br>
+              And grace my fears relieved;<br>
+              How precious did that grace appear<br>
+              The hour I first believed.
+            </p>
+          </div>
+          <div class="song-card-actions">
+            <button class="btn-toggle-lyrics" aria-expanded="true" aria-controls="lyrics1" onclick="toggleLyrics('lyrics1', this)">Hide Lyrics ▲</button>
+          </div>
+        </div>
+
+        <div class="song-card" id="hymn-2">
+          <span class="song-number">Hymn 2</span>
+          <div class="song-title">Abide With Me</div>
+          <p class="song-lyric">
+            "Abide with me; fast falls the eventide;<br>
+            the darkness deepens; Lord, with me abide…"
+          </p>
+          <div class="lyrics-expand open" id="lyrics2">
+            <p class="song-lyric">
+              When other helpers fail and comforts flee,<br>
+              Help of the helpless, O abide with me.<br><br>
+              Swift to its close ebbs out life's little day;<br>
+              Earth's joys grow dim, its glories pass away.
+            </p>
+          </div>
+          <div class="song-card-actions">
+            <button class="btn-toggle-lyrics" aria-expanded="true" aria-controls="lyrics2" onclick="toggleLyrics('lyrics2', this)">Hide Lyrics ▲</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════
          CANDLE WALL
          ══════════════════════════════════════ -->
     <section id="tribute" class="section-card section-card--alt candle-section" aria-labelledby="candle-title">
@@ -329,60 +383,6 @@
       </details>
 
       <div class="candle-print-list" id="candlePrintList"></div>
-    </section>
-
-    <!-- ══════════════════════════════════════
-         HYMNS
-         ══════════════════════════════════════ -->
-    <section id="hymns" class="section-card" aria-labelledby="hymns-title">
-      <div class="section-header">
-        <h2 class="section-title" id="hymns-title">Hymns</h2>
-        <div class="section-divider"></div>
-      </div>
-
-      <div class="hymns-grid">
-        <div class="song-card" id="hymn-1">
-          <span class="song-number">Hymn 1</span>
-          <div class="song-title">Amazing Grace</div>
-          <p class="song-lyric">
-            "Amazing grace, how sweet the sound,<br>
-            that saved a wretch like me…"
-          </p>
-          <div class="lyrics-expand open" id="lyrics1">
-            <p class="song-lyric">
-              I once was lost, but now am found;<br>
-              Was blind, but now I see.<br><br>
-              'Twas grace that taught my heart to fear,<br>
-              And grace my fears relieved;<br>
-              How precious did that grace appear<br>
-              The hour I first believed.
-            </p>
-          </div>
-          <div class="song-card-actions">
-            <button class="btn-toggle-lyrics" aria-expanded="true" aria-controls="lyrics1" onclick="toggleLyrics('lyrics1', this)">Hide Lyrics ▲</button>
-          </div>
-        </div>
-
-        <div class="song-card" id="hymn-2">
-          <span class="song-number">Hymn 2</span>
-          <div class="song-title">Abide With Me</div>
-          <p class="song-lyric">
-            "Abide with me; fast falls the eventide;<br>
-            the darkness deepens; Lord, with me abide…"
-          </p>
-          <div class="lyrics-expand open" id="lyrics2">
-            <p class="song-lyric">
-              When other helpers fail and comforts flee,<br>
-              Help of the helpless, O abide with me.<br><br>
-              Swift to its close ebbs out life's little day;<br>
-              Earth's joys grow dim, its glories pass away.
-            </p>
-          </div>
-          <div class="song-card-actions">
-            <button class="btn-toggle-lyrics" aria-expanded="true" aria-controls="lyrics2" onclick="toggleLyrics('lyrics2', this)">Hide Lyrics ▲</button>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- ══════════════════════════════════════
