@@ -1,0 +1,11 @@
+{
+  "name": "In Loving Memory of Rael Ndeve",
+  "short_name": "Rael Ndeve",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#14110D",
+  "theme_color": "#14110D",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
