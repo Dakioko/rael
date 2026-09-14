@@ -1524,7 +1524,12 @@
       .candle-form-row { flex-direction: column; gap: 10px; }
       .candle-form-footer { flex-direction: column; align-items: stretch; }
       .candle-form-footer .btn-pill { justify-content: center; }
-      .candle-wall { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 24px 12px; }
+      .candle-wall { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 18px 10px; }
+      .candle-entry { gap: 5px; padding: 0 4px 10px; }
+      .candle-entry-svg { width: 24px; height: 35px; }
+      .candle-entry-name { font-size: 0.82rem; }
+      .candle-entry-message { font-size: 0.68rem; line-height: 1.35; }
+      .candle-entry-time { font-size: 0.62rem; margin-top: 0; }
 
       .btn-pill { padding: 11px 18px; font-size: 0.72rem; letter-spacing: 1.2px; }
       .hero-actions { gap: 10px; }
