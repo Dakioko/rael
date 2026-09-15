@@ -340,6 +340,7 @@ let unsubscribeCandles = null;
 let candleLimit = CANDLES_PAGE_SIZE;
 let candleTick = null;
 let pendingScrollCandleId = null;
+let expandedMessageIds = new Set(); // which candle messages the visitor has tapped open
 
 try {
   if (window.FIREBASE_CONFIG) {
@@ -510,19 +511,10 @@ function renderCandles(candles) {
     svgWrap.innerHTML = candleSVG;
     const svg = svgWrap.firstElementChild;
     svg.style.setProperty('--flame-size', sizeForCandle(candle, candle.id === newestId) + 'px');
-    entry.appendChild(svg);
 
     const name = document.createElement('div');
     name.className = 'candle-entry-name';
     name.textContent = candle.name;
-    entry.appendChild(name);
-
-    if (candle.message) {
-      const message = document.createElement('div');
-      message.className = 'candle-entry-message';
-      message.textContent = '\u201C' + candle.message + '\u201D';
-      entry.appendChild(message);
-    }
 
     const time = document.createElement('div');
     time.className = 'candle-entry-time';
@@ -530,12 +522,54 @@ function renderCandles(candles) {
     timeEl.dateTime = candle.date.toISOString();
     timeEl.textContent = formatRelativeTime(candle.date);
     time.appendChild(timeEl);
-    entry.appendChild(time);
+
+    if (candle.message) {
+      // Candles with a message become tap-to-reveal: flame + name + time
+      // stay visible inside a real <button> (keyboard + screen-reader
+      // friendly), the message itself sits in a collapsible panel that
+      // starts open if the visitor already expanded it before this
+      // re-render (e.g. because someone else just lit a new candle).
+      const isOpen = expandedMessageIds.has(candle.id);
+      const detailId = 'candle-msg-' + candle.id;
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'candle-entry-toggle';
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      toggle.setAttribute('aria-controls', detailId);
+      toggle.append(svg, name, time);
+
+      const detail = document.createElement('div');
+      detail.className = 'candle-entry-detail' + (isOpen ? ' is-open' : '');
+      detail.id = detailId;
+      const message = document.createElement('p');
+      message.className = 'candle-entry-message';
+      message.textContent = '\u201C' + candle.message + '\u201D';
+      detail.appendChild(message);
+
+      toggle.addEventListener('click', () => {
+        const nowOpen = !detail.classList.contains('is-open');
+        detail.classList.toggle('is-open', nowOpen);
+        toggle.setAttribute('aria-expanded', String(nowOpen));
+        if (nowOpen) expandedMessageIds.add(candle.id);
+        else expandedMessageIds.delete(candle.id);
+      });
+
+      entry.append(toggle, detail);
+    } else {
+      // No message to reveal — render as a plain, non-interactive entry.
+      entry.append(svg, name, time);
+    }
 
     wall.appendChild(entry);
 
     if (t > maxSeenTime) maxSeenTime = t;
   });
+
+  // Drop tracked ids for candles no longer on the wall (keeps the set small
+  // over a long-running session rather than growing forever).
+  const visibleIds = new Set(candles.map(c => c.id));
+  expandedMessageIds.forEach(id => { if (!visibleIds.has(id)) expandedMessageIds.delete(id); });
 
   if (hasLoadedOnce && status) {
     const fresh = candles.filter(c => c.date.getTime() > previousMaxTime);
