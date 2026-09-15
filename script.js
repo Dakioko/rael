@@ -681,6 +681,16 @@ function subscribeToCandles(showLoading = true) {
   unsubscribeCandles = onSnapshot(
     q,
     (snapshot) => {
+      // Firestore can fire an initial event from local cache before the
+      // server responds — on a fresh visit that cache is often empty,
+      // which would otherwise flash "No candles lit yet" for a moment.
+      // Skip it and wait for a snapshot we can trust: either the first
+      // one that isn't from cache, or any snapshot once we've already
+      // shown real data (so genuine "went to zero" cases still render).
+      if (snapshot.metadata.fromCache && snapshot.empty && !hasLoadedOnce) {
+        return;
+      }
+
       const candles = snapshot.docs.map(doc => {
         const data = doc.data();
         return {
