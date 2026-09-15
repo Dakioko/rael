@@ -737,6 +737,12 @@ async function submitCandle(event) {
   }
 }
 
+// Wire the form's submit event to the handler above. This is what actually
+// makes the "Light a Candle" button (and Enter/requestSubmit) call
+// submitCandle() instead of falling through to the browser's default
+// form submission (a full page reload with the fields tacked onto the URL).
+document.getElementById('candleForm')?.addEventListener('submit', submitCandle);
+
 // Ctrl/Cmd+Enter submits the candle form from the textarea
 document.getElementById('candleForm')?.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -888,5 +894,4 @@ lightbox.addEventListener('touchend', (e) => {
    Module scope is not global, so anything referenced
    from onclick="" in index.html must be re-exported here.
    ══════════════════════════════════════ */
-window.shareThis    = shareThis;
-window.submitCandle = submitCandle;
+window.shareThis = shareThis;
