@@ -20,7 +20,7 @@ import {
 /* ══════════════════════════════════════
    CONFIG
    ══════════════════════════════════════ */
-const RECAPTCHA_SITE_KEY = 'PASTE_YOUR_RECAPTCHA_V3_SITE_KEY_HERE';
+const RECAPTCHA_SITE_KEY = '6Le2v7otAAAAADWcrqSoPo1tHX3b5KRQ0EgEB7Bi';
 const CANDLES_COLLECTION = 'candles';
 const CANDLES_PAGE_SIZE = 48;
 const SERVICE_END = new Date('2026-09-19T13:00:00+03:00');
@@ -340,7 +340,6 @@ let unsubscribeCandles = null;
 let candleLimit = CANDLES_PAGE_SIZE;
 let candleTick = null;
 let pendingScrollCandleId = null;
-let selectedCandleId = null;
 
 try {
   if (window.FIREBASE_CONFIG) {
@@ -391,52 +390,13 @@ const candleSVG = `
   </svg>
 `;
 
-// Base size is a small deterministic per-candle variation (15–22px) so the
-// mosaic isn't uniform; candles with a longer message get a modest, capped
-// bump on top (up to +5px) so size means something without getting showy.
+// Small deterministic per-candle variation (15–19px) so the flames aren't
+// perfectly uniform across the grid.
 function sizeForCandle(candle) {
   let hash = 0;
   const id = candle.id;
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  const base = 15 + (hash % 8);
-  const messageLen = candle.message ? candle.message.length : 0;
-  const bonus = Math.min(5, Math.round(messageLen / 25));
-  return base + bonus;
-}
-
-function renderCandleDetail(candle) {
-  const detail = document.getElementById('candleDetail');
-  if (!detail) return;
-  detail.hidden = false;
-  detail.innerHTML = `
-    <div class="candle-detail-header">
-      <span class="candle-detail-name">${escapeHTML(candle.name)}</span>
-      <time class="candle-detail-time" datetime="${candle.date.toISOString()}">${escapeHTML(formatRelativeTime(candle.date))}</time>
-    </div>
-    ${candle.message ? `<div class="candle-detail-message">${escapeHTML(candle.message)}</div>` : ''}
-  `;
-}
-
-function showCandleDetail(id) {
-  const candle = latestCandles.find(c => c.id === id);
-  if (!candle) return;
-  selectedCandleId = id;
-  document.querySelectorAll('.candle-flame').forEach((el) => {
-    const match = el.dataset.id === id;
-    el.classList.toggle('is-selected', match);
-    el.setAttribute('aria-pressed', match ? 'true' : 'false');
-  });
-  renderCandleDetail(candle);
-}
-
-function hideCandleDetail() {
-  selectedCandleId = null;
-  const detail = document.getElementById('candleDetail');
-  if (detail) { detail.hidden = true; detail.innerHTML = ''; }
-  document.querySelectorAll('.candle-flame').forEach((el) => {
-    el.classList.remove('is-selected');
-    el.setAttribute('aria-pressed', 'false');
-  });
+  return 15 + (hash % 5);
 }
 
 function escapeHTML(str) {
@@ -457,13 +417,10 @@ function removeLoadMore() {
 function setWallState(state, message, showRetry) {
   const wall = document.getElementById('candleWall');
   const summary = document.getElementById('candleSummary');
-  const hint = document.getElementById('candleWallHint');
   if (!wall) return;
 
   removeLoadMore();
   wall.innerHTML = '';
-  hideCandleDetail();
-  if (hint) hint.hidden = true;
   const p = document.createElement('p');
   p.className = 'candle-wall-empty' + (state === 'error' ? ' is-error' : '');
   p.textContent = message;
@@ -511,7 +468,6 @@ function renderCandles(candles) {
   const summary = document.getElementById('candleSummary');
   const printList = document.getElementById('candlePrintList');
   const status = document.getElementById('candleStatus');
-  const hint = document.getElementById('candleWallHint');
 
   const previousMaxTime = maxSeenTime;
   latestCandles = candles;
@@ -523,26 +479,38 @@ function renderCandles(candles) {
     return;
   }
 
-  if (hint) hint.hidden = false;
-
   candles.forEach((candle) => {
     const t = candle.date.getTime();
     // Only glow for candles newer than the newest we've previously rendered.
     // Loading older pages won't trip this because their timestamps are lower.
     const isNew = hasLoadedOnce && t > previousMaxTime;
 
-    const flame = document.createElement('button');
-    flame.type = 'button';
-    flame.className = 'candle-flame' + (isNew ? ' is-new' : '') + (candle.id === selectedCandleId ? ' is-selected' : '');
-    flame.dataset.id = candle.id;
-    flame.style.setProperty('--flame-size', sizeForCandle(candle) + 'px');
-    flame.setAttribute('aria-pressed', candle.id === selectedCandleId ? 'true' : 'false');
-    flame.setAttribute('aria-label', candle.message
-      ? `Candle lit by ${candle.name}: “${candle.message}”, ${formatRelativeTime(candle.date)}`
-      : `Candle lit by ${candle.name}, ${formatRelativeTime(candle.date)}`);
-    flame.innerHTML = candleSVG;
-    flame.addEventListener('click', () => showCandleDetail(candle.id));
-    wall.appendChild(flame);
+    const card = document.createElement('div');
+    card.className = 'candle-card' + (isNew ? ' is-new' : '');
+    card.dataset.id = candle.id;
+
+    const top = document.createElement('div');
+    top.className = 'candle-card-top';
+    top.innerHTML = candleSVG;
+    top.querySelector('.candle-flame-svg').style.setProperty('--flame-size', sizeForCandle(candle) + 'px');
+    const name = document.createElement('span');
+    name.className = 'candle-card-name';
+    name.textContent = candle.name;
+    top.appendChild(name);
+    card.appendChild(top);
+
+    const message = document.createElement('p');
+    message.className = 'candle-card-message' + (candle.message ? '' : ' is-empty');
+    message.textContent = candle.message || 'No message left';
+    card.appendChild(message);
+
+    const time = document.createElement('time');
+    time.className = 'candle-card-time';
+    time.dateTime = candle.date.toISOString();
+    time.textContent = formatRelativeTime(candle.date);
+    card.appendChild(time);
+
+    wall.appendChild(card);
 
     if (t > maxSeenTime) maxSeenTime = t;
   });
@@ -573,20 +541,12 @@ function renderCandles(candles) {
     printList.appendChild(ul);
   }
 
-  // Keep the open detail panel in sync with the freshly rendered candles.
-  if (selectedCandleId) {
-    const stillPresent = candles.find(c => c.id === selectedCandleId);
-    if (stillPresent) renderCandleDetail(stillPresent);
-    else hideCandleDetail();
-  }
-
   if (pendingScrollCandleId) {
     const target = wall.querySelector(`[data-id="${pendingScrollCandleId}"]`);
     if (target) {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
       target.classList.add('is-mine');
-      showCandleDetail(pendingScrollCandleId);
       setTimeout(() => target.classList.remove('is-mine'), 2400);
     }
     pendingScrollCandleId = null;
@@ -701,17 +661,12 @@ document.getElementById('candleForm')?.addEventListener('keydown', (e) => {
 function startCandleTicker() {
   if (candleTick) return;
   candleTick = setInterval(() => {
-    document.querySelectorAll('.candle-flame').forEach((el) => {
+    document.querySelectorAll('.candle-card').forEach((el) => {
       const c = latestCandles.find(x => x.id === el.dataset.id);
-      if (!c) return;
-      el.setAttribute('aria-label', c.message
-        ? `Candle lit by ${c.name}: “${c.message}”, ${formatRelativeTime(c.date)}`
-        : `Candle lit by ${c.name}, ${formatRelativeTime(c.date)}`);
+      const timeEl = el.querySelector('.candle-card-time');
+      if (!c || !timeEl) return;
+      timeEl.textContent = formatRelativeTime(c.date);
     });
-    if (selectedCandleId) {
-      const selected = latestCandles.find(c => c.id === selectedCandleId);
-      if (selected) renderCandleDetail(selected);
-    }
   }, 60000);
 }
 startCandleTicker();

@@ -902,18 +902,13 @@
       padding: 24px 4px 4px;
       border-top: 1px solid var(--border);
       min-height: 100px;
-      max-height: 620px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      justify-content: center;
-      gap: 3px 4px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
     }
 
     .candle-wall-empty {
-      flex-basis: 100%;
+      grid-column: 1 / -1;
       text-align: center;
       font-size: 0.85rem;
       color: var(--text-muted);
@@ -925,7 +920,7 @@
     .candle-wall-empty.is-error { color: var(--color-error); }
 
     .candle-retry {
-      flex-basis: 100%;
+      grid-column: 1 / -1;
       margin: 14px auto 0;
       font-size: 0.7rem;
       padding: 9px 16px;
@@ -944,33 +939,26 @@
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    .candle-flame {
-      position: relative;
-      display: block;
-      line-height: 0;
-      background: none;
-      border: none;
-      padding: 2px;
-      cursor: pointer;
-      border-radius: 4px;
+    .candle-card {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
       animation: candleAppear 0.4s ease;
-      transition: transform 0.2s ease;
+      transition: box-shadow 0.3s ease;
     }
 
-    .candle-flame:hover,
-    .candle-flame.is-selected {
-      transform: translateY(-3px);
-    }
-
-    .candle-flame:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px var(--gold-dim);
+    .candle-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .candle-flame-svg {
       display: block;
-      width: var(--flame-size, 18px);
-      height: calc(var(--flame-size, 18px) * 1.5);
+      flex-shrink: 0;
+      width: var(--flame-size, 16px);
+      height: calc(var(--flame-size, 16px) * 1.5);
       filter: drop-shadow(0 0 6px rgba(255, 176, 58, 0.18));
     }
 
@@ -987,85 +975,44 @@
       transform-origin: 20px 24px;
     }
 
-    .candle-flame.is-new .candle-flame-svg {
-      filter: drop-shadow(0 0 14px rgba(255, 176, 58, 0.75));
+    .candle-card.is-new {
+      box-shadow: 0 0 0 1px var(--gold-dim), 0 0 16px rgba(255, 176, 58, 0.25);
     }
 
-    .candle-flame.is-mine .candle-flame-svg,
-    .candle-flame.is-selected .candle-flame-svg {
-      filter: drop-shadow(0 0 16px rgba(255, 176, 58, 0.85));
+    .candle-card.is-mine {
+      box-shadow: 0 0 0 1px var(--gold-dim), 0 0 20px rgba(255, 176, 58, 0.35);
     }
 
-    .candle-wall-hint {
-      text-align: center;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      letter-spacing: 0.4px;
-      font-style: italic;
-      font-family: var(--font-heading);
-      margin-top: 10px;
-    }
-
-    .candle-detail {
-      max-width: 480px;
-      margin: 16px auto 0;
-      padding: 16px 22px;
-      background: var(--bg-card-alt);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      text-align: center;
-      animation: candleAppear 0.3s ease;
-    }
-
-    .candle-detail-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .candle-detail-name {
+    .candle-card-name {
       font-family: var(--font-heading);
       font-style: italic;
-      font-size: 1.05rem;
       font-weight: 500;
+      font-size: 0.95rem;
       color: var(--gold-light);
     }
 
-    .candle-detail-time {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-    }
-
-    .candle-detail-message {
-      position: relative;
-      font-family: var(--font-heading);
-      font-style: normal;
-      font-weight: 500;
-      font-size: 1.05rem;
+    .candle-card-message {
+      font-size: 0.85rem;
       color: var(--text-body);
-      line-height: 1.6;
-      margin-top: 10px;
-      padding: 0 6px;
+      line-height: 1.5;
+      margin-top: 8px;
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
 
-    .candle-detail-message::before,
-    .candle-detail-message::after {
-      font-family: Georgia, serif;
-      font-size: 1.4em;
-      font-style: normal;
-      color: var(--gold-dim);
-      line-height: 0;
-      vertical-align: -0.32em;
+    .candle-card-message.is-empty {
+      color: var(--text-muted);
+      font-style: italic;
     }
 
-    .candle-detail-message::before { content: '“'; margin-right: 2px; }
-    .candle-detail-message::after { content: '”'; margin-left: 2px; }
+    .candle-card-time {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      margin-top: 10px;
+    }
 
     .candle-count-summary {
       text-align: center;
@@ -1562,10 +1509,7 @@
       .candle-form-row { flex-direction: column; gap: 10px; }
       .candle-form-footer { flex-direction: column; align-items: stretch; }
       .candle-form-footer .btn-pill { justify-content: center; }
-      .candle-wall { max-height: 420px; gap: 2px 3px; }
-      .candle-detail-header { flex-direction: column; gap: 2px; }
-      .candle-detail-name { font-size: 0.92rem; }
-      .candle-detail-message { font-size: 0.82rem; }
+      .candle-wall { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
 
       .btn-pill { padding: 11px 18px; font-size: 0.72rem; letter-spacing: 1.2px; }
       .hero-actions { gap: 10px; }
@@ -1580,8 +1524,6 @@
        TOUCH DEVICE — disable sticky hover
        ══════════════════════════════════════ */
     @media (hover: none) {
-      .candle-flame:hover { transform: none; }
-
       .btn-pill:hover {
         color: var(--gold-light);
         background: transparent;
@@ -1626,8 +1568,7 @@
       .nav-bar { animation: none; }
 
       .section-card { opacity: 1; transform: none; transition: none; }
-      .candle-flame { animation: none; }
-      .candle-detail { animation: none; }
+      .candle-card { animation: none; }
       .lightbox.open { animation: none; }
       .song-card.is-highlighted { animation: none; }
 
@@ -1636,9 +1577,8 @@
         animation: none;
       }
 
-      .candle-flame.is-new .candle-flame-svg { filter: none; }
-      .candle-flame.is-mine .candle-flame-svg { filter: none; }
-      .candle-flame.is-selected .candle-flame-svg { filter: none; }
+      .candle-card.is-new { box-shadow: 0 0 0 1px var(--gold-dim); }
+      .candle-card.is-mine { box-shadow: 0 0 0 1px var(--gold-dim); }
       .btn-pill.is-lighting { animation: none; }
 
       .btn-pill, .back-to-top, .theme-toggle, .gallery-item, .gallery-item img,
@@ -1665,7 +1605,6 @@
       .hero-actions,
       .back-to-top, .theme-toggle, .footer-share, .share-toast,
       .candle-form, .candle-wall, .candle-count-summary,
-      .candle-wall-hint, .candle-detail,
       .btn-toggle-lyrics, .btn-copy-hymn, .song-card-actions,
       .candle-load-more, .privacy-note, .gallery-note { display: none !important; }
 
