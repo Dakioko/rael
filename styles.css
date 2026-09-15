@@ -652,6 +652,14 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
     }
 
+    /* Candle Wall reads a touch too washed-out against the near-white page
+       background in light mode; nudge just this section darker without
+       affecting the Gallery (which also uses .section-card--alt) or dark
+       mode (the rule above already wins there on specificity). */
+    .candle-section {
+      background: #EEE1C7;
+    }
+
     .section-card::before {
       content: '';
       position: absolute;
