@@ -307,6 +307,32 @@ let candleTick = null;
 let pendingScrollCandleId = null;
 let expandedMessageIds = new Set(); // which candle messages the visitor has tapped open
 
+/* One candle per browser. This is a courtesy limit, not real security — it
+   stops accidental double-posts and casual repeat visits, and resets if the
+   visitor clears storage, uses another browser, or goes incognito. That
+   trade-off is intentional: no login, no fingerprinting, just localStorage. */
+const CANDLE_LIT_KEY = 'rael-candle-lit';
+
+function hasAlreadyLitCandle() {
+  try { return !!localStorage.getItem(CANDLE_LIT_KEY); } catch (e) { return false; }
+}
+
+function markCandleLit() {
+  try { localStorage.setItem(CANDLE_LIT_KEY, '1'); } catch (e) {}
+}
+
+function showAlreadyLitState() {
+  const form = document.getElementById('candleForm');
+  if (!form || form.hidden) return;
+  form.hidden = true;
+
+  const note = document.createElement('p');
+  note.className = 'candle-already-lit';
+  note.id = 'candleAlreadyLit';
+  note.innerHTML = '🕯️ You\u2019ve already lit a candle here — thank you for remembering Rael.';
+  form.after(note);
+}
+
 try {
   if (window.FIREBASE_CONFIG) {
     const app = initializeApp(window.FIREBASE_CONFIG);
@@ -678,6 +704,8 @@ function subscribeToCandles(showLoading = true) {
 }
 subscribeToCandles(true);
 
+if (hasAlreadyLitCandle()) showAlreadyLitState();
+
 async function submitCandle(event) {
   event.preventDefault();
   const nameInput = document.getElementById('candleName');
@@ -727,6 +755,8 @@ async function submitCandle(event) {
     nameInput.value = '';
     messageInput.value = '';
     hint.textContent = 'Your candle is now lit for everyone to see.';
+    markCandleLit();
+    showAlreadyLitState();
   } catch (e) {
     console.error('Candle submit failed:', e);
     hint.textContent = 'Something went wrong — please try again.';

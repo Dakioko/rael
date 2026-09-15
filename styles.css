@@ -905,6 +905,19 @@
 
     .candle-form-hint.error { color: var(--color-error); }
 
+    .candle-already-lit {
+      max-width: 520px;
+      margin: 0 auto 36px;
+      padding: 16px 20px;
+      text-align: center;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text-body);
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+    }
+
     .candle-wall {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
