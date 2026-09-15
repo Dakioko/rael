@@ -387,29 +387,26 @@ function formatRelativeTime(date) {
 const candleSVG = `
   <svg class="candle-entry-svg" viewBox="0 0 40 59" aria-hidden="true">
     <defs>
-      <radialGradient id="candleGlow" cx="50%" cy="32%" r="52%">
-        <stop offset="0%"   stop-color="#FFD07B" stop-opacity="0.55"/>
-        <stop offset="100%" stop-color="#FFD07B" stop-opacity="0"/>
-      </radialGradient>
       <linearGradient id="waxBody" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%"   stop-color="#E3CDA0"/>
         <stop offset="40%"  stop-color="#F5E9C7"/>
         <stop offset="100%" stop-color="#D4BB85"/>
       </linearGradient>
     </defs>
-    <ellipse cx="20" cy="20" rx="15" ry="19" fill="url(#candleGlow)"/>
-    <path class="flame-outer" fill="#FFB03A"
-          d="M20 5
-             C 22 10, 26 14, 26 18.5
-             C 26 22.5, 23.4 25, 20 25
-             C 16.6 25, 14 22.5, 14 18.5
-             C 14 14, 18 10, 20 5 Z"/>
-    <path class="flame-inner" fill="#FFE7B0"
-          d="M20 12
-             C 21 15, 22.5 16.8, 22.5 19
-             C 22.5 20.8, 21.4 22, 20 22
-             C 18.6 22, 17.5 20.8, 17.5 19
-             C 17.5 16.8, 19 15, 20 12 Z"/>
+    <g class="flame-glow">
+      <path class="flame-outer" fill="#FFB03A"
+            d="M20 5
+               C 22 10, 26 14, 26 18.5
+               C 26 22.5, 23.4 25, 20 25
+               C 16.6 25, 14 22.5, 14 18.5
+               C 14 14, 18 10, 20 5 Z"/>
+      <path class="flame-inner" fill="#FFE7B0"
+            d="M20 12
+               C 21 15, 22.5 16.8, 22.5 19
+               C 22.5 20.8, 21.4 22, 20 22
+               C 18.6 22, 17.5 20.8, 17.5 19
+               C 17.5 16.8, 19 15, 20 12 Z"/>
+    </g>
     <rect x="19.2" y="25" width="1.6" height="7" fill="#2b1e10"/>
     <rect x="19.2" y="25" width="1.6" height="3" fill="#FF8A2B"/>
     <rect x="13.5" y="31" width="13" height="24" rx="1.4" fill="url(#waxBody)"/>
