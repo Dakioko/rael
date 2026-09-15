@@ -1123,100 +1123,6 @@
     }
 
     /* ══════════════════════════════════════
-       HYMNS
-       ══════════════════════════════════════ */
-    .hymns-grid { display: grid; grid-template-columns: 1fr; }
-    .song-card {
-      padding: 36px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      border-top: 1px solid var(--border-subtle);
-    }
-    .song-card:first-child { border-top: none; padding-top: 0; }
-    .song-card:last-child { padding-bottom: 0; }
-
-    .song-number {
-      font-size: 0.78rem;
-      letter-spacing: 2.4px;
-      text-transform: uppercase;
-      color: var(--gold);
-      font-weight: 600;
-    }
-
-    .song-title {
-      font-family: var(--font-heading);
-      font-size: 1.7rem;
-      font-weight: 500;
-      color: var(--gold-light);
-      line-height: 1.2;
-    }
-
-    .song-lyric {
-      font-family: var(--font-heading);
-      font-style: italic;
-      font-size: 1.15rem;
-      color: var(--text-body);
-      line-height: 1.85;
-    }
-
-    .lyrics-expand {
-      display: block;
-      margin-top: 14px;
-      padding-top: 16px;
-      border-top: 1px dashed var(--border-subtle);
-    }
-    .lyrics-expand:not(.open) { display: none; }
-
-    .btn-toggle-lyrics {
-      background: none;
-      border: none;
-      color: var(--gold);
-      font-size: 0.75rem;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 0;
-      text-align: left;
-      font-family: var(--font-body);
-      font-weight: 600;
-      transition: color 0.3s ease;
-    }
-    .btn-toggle-lyrics:hover { color: var(--gold-light); }
-
-    .song-card-actions {
-      display: flex;
-      align-items: center;
-      gap: 18px;
-      flex-wrap: wrap;
-      margin-top: 8px;
-    }
-
-    .btn-copy-hymn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.72rem;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      cursor: pointer;
-      padding: 0;
-      font-family: var(--font-body);
-      font-weight: 600;
-      transition: color 0.2s ease;
-    }
-    .btn-copy-hymn:hover { color: var(--gold-light); }
-    .btn-copy-hymn:disabled { cursor: default; color: var(--gold); }
-
-    .song-card.is-highlighted {
-      animation: hymnFlash 2.4s ease;
-    }
-    @keyframes hymnFlash {
-      0%, 100% { background: transparent; }
-      15%      { background: rgba(189, 122, 62, 0.08); }
-    }
-
-    /* ══════════════════════════════════════
        GALLERY
        ══════════════════════════════════════ */
     .gallery-note {
@@ -1618,8 +1524,6 @@
       .nav-bar a:hover { color: var(--text-muted); }
       .nav-bar a:hover::before { opacity: 0; }
       .nav-bar a:hover::after { transform: translateX(-50%) scaleX(0); }
-      .btn-toggle-lyrics:hover { color: var(--gold); }
-      .btn-copy-hymn:hover { color: var(--text-muted); }
     }
 
     /* ══════════════════════════════════════
@@ -1634,7 +1538,6 @@
       .section-card { opacity: 1; transform: none; transition: none; }
       .candle-entry { animation: none; }
       .lightbox.open { animation: none; }
-      .song-card.is-highlighted { animation: none; }
 
       .candle-entry-svg path[fill="#FFD07B"],
       .candle-entry-svg path[fill="#FFB03A"] {
@@ -1653,7 +1556,7 @@
 
       .btn-pill, .back-to-top, .theme-toggle, .gallery-item, .gallery-item img,
       .nav-bar a, .nav-bar a::after, .nav-bar a::before,
-      .candle-input, .candle-textarea, .btn-copy-hymn {
+      .candle-input, .candle-textarea {
         transition: none;
       }
 
@@ -1675,7 +1578,6 @@
       .hero-actions,
       .back-to-top, .theme-toggle, .footer-share, .share-toast,
       .candle-form, .candle-wall, .candle-count-summary,
-      .btn-toggle-lyrics, .btn-copy-hymn, .song-card-actions,
       .candle-load-more, .privacy-note, .gallery-note { display: none !important; }
 
       .table-scroll { display: block !important; }

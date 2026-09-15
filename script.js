@@ -251,41 +251,6 @@ async function shareThis() {
 }
 
 /* ══════════════════════════════════════
-   LYRICS ACCORDION
-   ══════════════════════════════════════ */
-function toggleLyrics(id, btn) {
-  const content = document.getElementById(id);
-  if (!content) return;
-  const isOpen = content.classList.contains('open');
-  if (isOpen) {
-    content.classList.remove('open');
-    btn.textContent = 'Show Full Lyrics ▼';
-    btn.setAttribute('aria-expanded', 'false');
-  } else {
-    content.classList.add('open');
-    btn.textContent = 'Hide Lyrics ▲';
-    btn.setAttribute('aria-expanded', 'true');
-  }
-}
-
-/* ══════════════════════════════════════
-   HYMN DEEP-LINKING
-   ══════════════════════════════════════ */
-(function openHymnFromHash() {
-  const id = window.location.hash.replace('#', '');
-  if (!id || !id.startsWith('hymn-')) return;
-  const card = document.getElementById(id);
-  if (!card) return;
-  const lyrics = card.querySelector('.lyrics-expand');
-  const toggle = card.querySelector('.btn-toggle-lyrics');
-  if (lyrics && !lyrics.classList.contains('open') && toggle) {
-    toggleLyrics(lyrics.id, toggle);
-  }
-  card.classList.add('is-highlighted');
-  setTimeout(() => card.classList.remove('is-highlighted'), 2400);
-})();
-
-/* ══════════════════════════════════════
    SERVICE-PAST STATE
    ══════════════════════════════════════ */
 function applyServiceState() {
@@ -858,4 +823,3 @@ lightbox.addEventListener('touchend', (e) => {
    ══════════════════════════════════════ */
 window.shareThis    = shareThis;
 window.submitCandle = submitCandle;
-window.toggleLyrics = toggleLyrics;
