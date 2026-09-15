@@ -345,8 +345,16 @@ try {
   if (window.FIREBASE_CONFIG) {
     const app = initializeApp(window.FIREBASE_CONFIG);
 
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+    if (isLocalHost) {
+      let debugToken = null;
+      try { debugToken = localStorage.getItem('appcheck-debug-token'); } catch (e) {}
+      if (!debugToken) {
+        debugToken = crypto.randomUUID();
+        try { localStorage.setItem('appcheck-debug-token', debugToken); } catch (e) {}
+      }
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
+      console.info('App Check debug token (register once in Firebase Console → App Check → Manage debug tokens):', debugToken);
     }
 
     if (RECAPTCHA_SITE_KEY && RECAPTCHA_SITE_KEY.indexOf('PASTE_') !== 0) {
@@ -381,7 +389,7 @@ function formatRelativeTime(date) {
 }
 
 const candleSVG = `
-  <svg class="candle-flame-svg" viewBox="0 0 40 60" aria-hidden="true">
+  <svg class="candle-entry-svg" viewBox="0 0 40 60" aria-hidden="true">
     <rect x="14" y="26" width="12" height="32" rx="2" fill="#EFE7DA"/>
     <rect x="14" y="26" width="12" height="32" rx="2" fill="url(#waxShade)"/>
     <line x1="20" y1="26" x2="20" y2="20" stroke="#3a3228" stroke-width="1"/>
@@ -390,13 +398,18 @@ const candleSVG = `
   </svg>
 `;
 
-// Small deterministic per-candle variation (15–19px) so the flames aren't
-// perfectly uniform across the grid.
-function sizeForCandle(candle) {
+// Flame height reflects two things: the single newest candle on the wall is
+// always the tallest, and among the rest, a candle with a message stands a
+// little taller than a blank one. A small per-candle hash adds gentle
+// variation within each tier so they don't look mechanically identical.
+function sizeForCandle(candle, isNewest) {
   let hash = 0;
   const id = candle.id;
   for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  return 15 + (hash % 5);
+  const wobble = hash % 5; // 0–4px of organic variation
+
+  if (isNewest) return 40 + wobble;          // 40–44px, always the tallest
+  return candle.message ? 30 + wobble : 24 + wobble; // 30–34px vs 24–28px
 }
 
 function escapeHTML(str) {
@@ -479,38 +492,47 @@ function renderCandles(candles) {
     return;
   }
 
+  // candles[] is always sorted newest-first by the query, regardless of how
+  // many pages have been loaded, so the true newest is always candles[0].
+  const newestId = candles[0]?.id;
+
   candles.forEach((candle) => {
     const t = candle.date.getTime();
     // Only glow for candles newer than the newest we've previously rendered.
     // Loading older pages won't trip this because their timestamps are lower.
     const isNew = hasLoadedOnce && t > previousMaxTime;
 
-    const card = document.createElement('div');
-    card.className = 'candle-card' + (isNew ? ' is-new' : '');
-    card.dataset.id = candle.id;
+    const entry = document.createElement('div');
+    entry.className = 'candle-entry' + (isNew ? ' is-new' : '');
+    entry.dataset.id = candle.id;
 
-    const top = document.createElement('div');
-    top.className = 'candle-card-top';
-    top.innerHTML = candleSVG;
-    top.querySelector('.candle-flame-svg').style.setProperty('--flame-size', sizeForCandle(candle) + 'px');
-    const name = document.createElement('span');
-    name.className = 'candle-card-name';
+    const svgWrap = document.createElement('div');
+    svgWrap.innerHTML = candleSVG;
+    const svg = svgWrap.firstElementChild;
+    svg.style.setProperty('--flame-size', sizeForCandle(candle, candle.id === newestId) + 'px');
+    entry.appendChild(svg);
+
+    const name = document.createElement('div');
+    name.className = 'candle-entry-name';
     name.textContent = candle.name;
-    top.appendChild(name);
-    card.appendChild(top);
+    entry.appendChild(name);
 
-    const message = document.createElement('p');
-    message.className = 'candle-card-message' + (candle.message ? '' : ' is-empty');
-    message.textContent = candle.message || 'No message left';
-    card.appendChild(message);
+    if (candle.message) {
+      const message = document.createElement('div');
+      message.className = 'candle-entry-message';
+      message.textContent = '\u201C' + candle.message + '\u201D';
+      entry.appendChild(message);
+    }
 
-    const time = document.createElement('time');
-    time.className = 'candle-card-time';
-    time.dateTime = candle.date.toISOString();
-    time.textContent = formatRelativeTime(candle.date);
-    card.appendChild(time);
+    const time = document.createElement('div');
+    time.className = 'candle-entry-time';
+    const timeEl = document.createElement('time');
+    timeEl.dateTime = candle.date.toISOString();
+    timeEl.textContent = formatRelativeTime(candle.date);
+    time.appendChild(timeEl);
+    entry.appendChild(time);
 
-    wall.appendChild(card);
+    wall.appendChild(entry);
 
     if (t > maxSeenTime) maxSeenTime = t;
   });
@@ -661,9 +683,9 @@ document.getElementById('candleForm')?.addEventListener('keydown', (e) => {
 function startCandleTicker() {
   if (candleTick) return;
   candleTick = setInterval(() => {
-    document.querySelectorAll('.candle-card').forEach((el) => {
+    document.querySelectorAll('.candle-entry').forEach((el) => {
       const c = latestCandles.find(x => x.id === el.dataset.id);
-      const timeEl = el.querySelector('.candle-card-time');
+      const timeEl = el.querySelector('.candle-entry-time time');
       if (!c || !timeEl) return;
       timeEl.textContent = formatRelativeTime(c.date);
     });
