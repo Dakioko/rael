@@ -937,7 +937,7 @@
 
     @keyframes candleAppear {
       from { opacity: 0; transform: translateY(10px) scale(0.95); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .candle-entry {
@@ -989,10 +989,12 @@
       to   { background-color: transparent; }
     }
 
-    .candle-entry.is-new  { animation: candleAppear 0.6s ease, entryHighlight 2.6s ease-out; }
+    .candle-entry.is-new { animation: candleAppear 0.6s ease, entryHighlight 2.6s ease-out; }
     .candle-entry.is-mine { animation: entryHighlight 3.2s ease-out; }
 
-    /* The toggle (or body) wraps the whole visual unit so the entire candle is tappable. */
+    /* The toggle (or body) wraps the whole visual unit so the entire candle
+       is tappable. Message candles are buttons; blank candles are plain divs
+       so screen readers don't announce a phantom button. */
     .candle-entry-toggle,
     .candle-entry-body {
       display: flex;
@@ -1013,9 +1015,9 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Only truncated entries get the hover cue — static ones don't pretend to be interactive. */
-    .candle-entry-toggle:hover .candle-entry-name,
-    .candle-entry-toggle:focus-visible .candle-entry-name {
+    /* Only truncated entries respond to hover — short messages don't. */
+    .candle-entry-toggle[data-truncated="true"]:hover .candle-entry-name,
+    .candle-entry-toggle[data-truncated="true"]:focus-visible .candle-entry-name {
       color: var(--gold);
     }
 
@@ -1029,7 +1031,8 @@
       transition: color 0.25s ease;
     }
 
-    /* Snippet = the message itself. Clamped to two lines unless expanded. */
+    /* Snippet = the message itself. Clamped to two lines with ellipsis;
+       expanded entries drop the clamp via [aria-expanded="true"]. */
     .candle-entry-snippet {
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -1038,22 +1041,23 @@
       overflow: hidden;
       font-family: var(--font-heading);
       font-style: italic;
-      font-size: 0.84rem;
+      font-size: 0.85rem;
       font-weight: 400;
       color: var(--text-body);
       line-height: 1.45;
       letter-spacing: 0.1px;
       margin-top: 2px;
       max-width: 100%;
-      overflow-wrap: break-word;
       word-wrap: break-word;
+      overflow-wrap: break-word;
       text-wrap: pretty;
     }
 
     .candle-entry-toggle[aria-expanded="true"] .candle-entry-snippet {
       display: block;
-      -webkit-line-clamp: none;
-      line-clamp: none;
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+      -webkit-box-orient: initial;
       overflow: visible;
     }
 

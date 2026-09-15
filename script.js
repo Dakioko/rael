@@ -1,8 +1,7 @@
 /* ══════════════════════════════════════
-   FIREBASE — CANDLE WALL
+   MODULAR FIREBASE IMPORTS
    ══════════════════════════════════════ */
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
 import {
   getFirestore,
   collection,
@@ -11,472 +10,181 @@ import {
   limit,
   onSnapshot,
   addDoc,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider
+} from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app-check.js';
 
-const app = initializeApp(window.FIREBASE_CONFIG);
-const db  = getFirestore(app);
-
-const PAGE_SIZE = 60; // candles shown per "page"
-
-const wall         = document.getElementById('candleWall');
-const summaryEl    = document.getElementById('candleSummary');
-const statusEl     = document.getElementById('candleStatus');
-const form         = document.getElementById('candleForm');
-const nameInput    = document.getElementById('candleName');
-const messageInput = document.getElementById('candleMessage');
-const submitBtn    = document.getElementById('candleSubmitBtn');
-const hintEl       = document.getElementById('candleHint');
-const printList    = document.getElementById('candlePrintList');
-
-let shownCount  = PAGE_SIZE;
-let unsubscribe = null;
-let renderToken = 0;
-let pendingFirst = true;
-let lastEntries  = [];
-
-/* ── SVG candle ── */
-function candleSVG(size = 30) {
-  return `
-    <svg class="candle-entry-svg" style="--flame-size:${size}px"
-         viewBox="0 0 40 59" aria-hidden="true" focusable="false">
-      <defs>
-        <radialGradient id="glow-${Math.random().toString(36).slice(2)}" cx="50%" cy="38%" r="60%">
-          <stop offset="0%"   stop-color="#FFD07B" stop-opacity="0.55"/>
-          <stop offset="100%" stop-color="#FFD07B" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <ellipse cx="20" cy="22" rx="16" ry="20" fill="url(#glow)"/>
-      <path class="flame-outer" fill="#FFB03A"
-            d="M20 6c-4 6-8 9-8 14a8 8 0 0 0 16 0c0-5-4-8-8-14z"/>
-      <path class="flame-inner" fill="#FFD07B"
-            d="M20 12c-2 3-4 5-4 8a4 4 0 0 0 8 0c0-3-2-5-4-8z"/>
-      <rect x="14" y="32" width="12" height="22" rx="1.2" fill="#E8D5A3"/>
-      <rect x="14" y="32" width="12" height="22" rx="1.2" fill="url(#waxShade)"/>
-      <rect x="19" y="28" width="2" height="5" fill="#5C3814"/>
-      <ellipse cx="20" cy="55" rx="9" ry="1.6" fill="rgba(0,0,0,0.25)"/>
-    </svg>`;
-}
-
-/* ── Time formatting ── */
-function formatTime(ts) {
-  if (!ts) return '';
-  const date = ts.toDate ? ts.toDate() : new Date(ts);
-  const diff = (Date.now() - date.getTime()) / 1000;
-  if (diff < 60)     return 'Just now';
-  if (diff < 3600)   return `${Math.floor(diff / 60)} min ago`;
-  if (diff < 86400)  return `${Math.floor(diff / 3600)} hr ago`;
-  if (diff < 604800) return `${Math.floor(diff / 86400)} d ago`;
-  return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-/* ── Build one entry ── */
-function buildEntry(data, id) {
-  const entry = document.createElement('article');
-  entry.className = 'candle-entry';
-  entry.dataset.id = id || '';
-
-  const name    = (data.name || '').trim();
-  const message = (data.message || '').trim();
-
-  const toggle = document.createElement('button');
-  toggle.type = 'button';
-  toggle.className = 'candle-entry-toggle';
-  toggle.dataset.truncated = 'false';
-
-  toggle.innerHTML = candleSVG(30)
-    + `<span class="candle-entry-name"></span>`
-    + (message ? `<span class="candle-entry-snippet"></span>` : '');
-
-  toggle.querySelector('.candle-entry-name').textContent = name;
-  if (message) {
-    toggle.querySelector('.candle-entry-snippet').textContent = message;
-  }
-
-  entry.appendChild(toggle);
-
-  const time = document.createElement('time');
-  time.className = 'candle-entry-time';
-  if (data.timestamp) {
-    const d = data.timestamp.toDate ? data.timestamp.toDate() : new Date(data.timestamp);
-    time.dateTime = d.toISOString();
-    time.textContent = formatTime(data.timestamp);
-  }
-  entry.appendChild(time);
-
-  return entry;
-}
-
-/* ── Swap button ↔ div without losing children ── */
-function setEntryInteractive(entry, interactive) {
-  const current = entry.querySelector('.candle-entry-toggle, .candle-entry-body');
-  if (!current) return;
-  const isButton = current.classList.contains('candle-entry-toggle');
-  if (interactive === isButton) return;
-
-  const next = document.createElement(interactive ? 'button' : 'div');
-  next.className = interactive ? 'candle-entry-toggle' : 'candle-entry-body';
-  if (interactive) {
-    next.type = 'button';
-    next.setAttribute('aria-expanded', 'false');
-    next.dataset.truncated = 'true';
-  }
-  while (current.firstChild) next.appendChild(current.firstChild);
-  current.replaceWith(next);
-}
-
-/* ── Measure one entry: is the snippet actually clamped? ── */
-function measureEntry(entry) {
-  const snippet = entry.querySelector('.candle-entry-snippet');
-  if (!snippet) {
-    setEntryInteractive(entry, false);
-    entry.classList.remove('is-truncated');
-    return;
-  }
-  const toggle = entry.querySelector('.candle-entry-toggle');
-  if (toggle && toggle.getAttribute('aria-expanded') === 'true') return;
-
-  const truncated = snippet.scrollHeight > snippet.clientHeight + 1;
-  entry.classList.toggle('is-truncated', truncated);
-  setEntryInteractive(entry, truncated);
-}
-
-/* ── Measure every entry on the wall ── */
-function measureAll() {
-  wall.querySelectorAll('.candle-entry').forEach(measureEntry);
-}
-
-/* ── Render the whole wall from a snapshot ── */
-function render(entries) {
-  const token = ++renderToken;
-  lastEntries = entries;
-  wall.innerHTML = '';
-
-  if (!entries.length) {
-    const empty = document.createElement('p');
-    empty.className = 'candle-wall-empty';
-    empty.textContent = 'Be the first to light a candle.';
-    wall.appendChild(empty);
-    summaryEl.textContent = '';
-    printList.innerHTML = '';
-    return;
-  }
-
-  const fragment = document.createDocumentFragment();
-  entries.slice(0, shownCount).forEach(({ id, data }) => {
-    fragment.appendChild(buildEntry(data, id));
-  });
-  wall.appendChild(fragment);
-
-  if (entries.length > shownCount) {
-    const more = document.createElement('button');
-    more.type = 'button';
-    more.className = 'btn-pill btn-pill-ghost candle-load-more';
-    more.textContent = `Show ${entries.length - shownCount} more`;
-    more.addEventListener('click', () => {
-      shownCount += PAGE_SIZE;
-      render(lastEntries);
-    });
-    wall.appendChild(more);
-  }
-
-  const total = entries.length;
-  summaryEl.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
-
-  printList.innerHTML = '<h3>Candles lit in memory of Rael</h3><ul>'
-    + entries.map(({ data }) => {
-        const n = escapeHTML((data.name || '').trim());
-        const m = escapeHTML((data.message || '').trim());
-        return `<li><strong>${n}</strong>${m ? ' — ' + m : ''}</li>`;
-      }).join('')
-    + '</ul>';
-
-  requestAnimationFrame(() => {
-    if (token !== renderToken) return;
-    measureAll();
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        if (token === renderToken) measureAll();
-      });
-    }
-  });
-}
-
-/* ── Tiny HTML escaper for the print list ── */
-function escapeHTML(str) {
-  return String(str).replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
-  }[c]));
-}
-
-/* ── Subscribe to Firestore ── */
-function subscribe() {
-  if (unsubscribe) unsubscribe();
-  const q = query(
-    collection(db, 'candles'),
-    orderBy('timestamp', 'desc'),
-    limit(500)
-  );
-  unsubscribe = onSnapshot(
-    q,
-    (snap) => {
-      const entries = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-      render(entries);
-
-      if (pendingFirst) {
-        pendingFirst = false;
-        const first = wall.querySelector('.candle-entry');
-        if (first) first.classList.add('is-mine');
-      }
-    },
-    (err) => {
-      console.error('Candle wall subscription failed:', err);
-      wall.innerHTML = '';
-      const msg = document.createElement('p');
-      msg.className = 'candle-wall-empty is-error';
-      msg.textContent = 'Candles could not be loaded right now.';
-      wall.appendChild(msg);
-
-      const retry = document.createElement('button');
-      retry.type = 'button';
-      retry.className = 'btn-pill btn-pill-ghost candle-retry';
-      retry.textContent = 'Try again';
-      retry.addEventListener('click', subscribe);
-      wall.appendChild(retry);
-
-      statusEl.textContent = 'Unable to load the candle wall.';
-    }
-  );
-}
-
-/* ── Delegated expand/collapse ── */
-wall.addEventListener('click', (e) => {
-  const btn = e.target.closest('.candle-entry-toggle');
-  if (!btn || btn.dataset.truncated !== 'true') return;
-  const open = btn.getAttribute('aria-expanded') === 'true';
-  btn.setAttribute('aria-expanded', open ? 'false' : 'true');
-});
-
-/* ── Re-measure on width changes ── */
-let resizeTimer;
-if ('ResizeObserver' in window) {
-  new ResizeObserver(() => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(measureAll, 150);
-  }).observe(wall);
-} else {
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(measureAll, 150);
-  });
-}
-
-/* ── Submit a candle ── */
-async function submitCandle(event) {
-  event.preventDefault();
-  if (submitBtn.disabled) return;
-
-  const name    = nameInput.value.trim();
-  const message = messageInput.value.trim();
-
-  if (!name) {
-    hintEl.textContent = 'Please add your name.';
-    hintEl.classList.add('error');
-    nameInput.focus();
-    return;
-  }
-  if (name.length > 40) {
-    hintEl.textContent = 'Name is a little too long.';
-    hintEl.classList.add('error');
-    return;
-  }
-  if (message.length > 140) {
-    hintEl.textContent = 'Message is a little too long.';
-    hintEl.classList.add('error');
-    return;
-  }
-
-  hintEl.classList.remove('error');
-  hintEl.textContent = 'Lighting…';
-  submitBtn.disabled = true;
-  submitBtn.classList.add('is-lighting');
-
-  try {
-    const docRef = await addDoc(collection(db, 'candles'), {
-      name,
-      message,
-      timestamp: serverTimestamp(),
-    });
-
-    form.reset();
-    hintEl.textContent = 'Your candle is lit. Thank you.';
-    statusEl.textContent = 'Your candle has been added to the wall.';
-
-    requestAnimationFrame(() => {
-      const fresh = wall.querySelector(`.candle-entry[data-id="${docRef.id}"]`);
-      if (fresh) {
-        fresh.classList.add('is-mine');
-        fresh.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    });
-  } catch (err) {
-    console.error('Failed to add candle:', err);
-    hintEl.textContent = 'Something went wrong — please try again.';
-    hintEl.classList.add('error');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.classList.remove('is-lighting');
-  }
-}
-
-form.addEventListener('submit', submitCandle);
-
-subscribe();
-
+/* ══════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════ */
+const RECAPTCHA_SITE_KEY = '6Le2v7otAAAAADWcrqSoPo1tHX3b5KRQ0EgEB7Bi';
+const CANDLES_COLLECTION = 'candles';
+const CANDLES_PAGE_SIZE = 48;
+const SERVICE_END = new Date('2026-09-19T13:00:00+03:00');
 
 /* ══════════════════════════════════════
    THEME TOGGLE
+   (theme is applied by the inline <head> script; this just wires the button)
    ══════════════════════════════════════ */
 (function themeToggle() {
-  const btn = document.getElementById('themeToggle');
-  const meta = document.getElementById('themeColorMeta');
-  if (!btn) return;
+  const toggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById('themeColorMeta');
+  if (!toggle) return;
 
-  function apply(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
-    btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#14110D' : '#FAF6EF');
-    try { localStorage.setItem('rael-theme', theme); } catch (e) {}
+  const LIGHT_THEME_COLOR = '#FAF6EF';
+  const DARK_THEME_COLOR = '#14110D';
+
+  function applyLabel(theme) {
+    const isDark = theme === 'dark';
+    toggle.setAttribute('aria-pressed', String(isDark));
+    toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
+    }
   }
 
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  btn.setAttribute('aria-pressed', current === 'dark' ? 'true' : 'false');
-  btn.setAttribute('aria-label', current === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  applyLabel(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
 
-  btn.addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    apply(next);
+  toggle.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    applyLabel(next);
+    try { localStorage.setItem('rael-theme', next); } catch (e) {}
   });
 })();
 
-
 /* ══════════════════════════════════════
-   FLOATING PETALS
+   RISING EMBERS
    ══════════════════════════════════════ */
-(function petals() {
-  const host = document.getElementById('petals');
-  if (!host) return;
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) return;
+function createEmbers() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.innerWidth < 680) return;
+  const container = document.getElementById('petals');
+  if (!container) return;
+  container.innerHTML = '';
 
-  const count = window.innerWidth < 720 ? 8 : 16;
+  const count = 16;
   for (let i = 0; i < count; i++) {
-    const p = document.createElement('span');
+    const p = document.createElement('div');
     p.className = 'petal';
-    const size = 4 + Math.random() * 6;
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (10 + Math.random() * 14) + 's';
+    p.style.animationDelay = (Math.random() * 16) + 's';
+    const size = 3 + Math.random() * 5;
     p.style.width = size + 'px';
     p.style.height = size + 'px';
-    p.style.left = Math.random() * 100 + '%';
-    p.style.animationDuration = (14 + Math.random() * 16) + 's';
-    p.style.animationDelay = (-Math.random() * 20) + 's';
-    p.style.opacity = 0.3 + Math.random() * 0.5;
-    host.appendChild(p);
+    container.appendChild(p);
   }
-})();
+}
+createEmbers();
 
+let petalResizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(petalResizeTimer);
+  petalResizeTimer = setTimeout(createEmbers, 300);
+}, { passive: true });
 
 /* ══════════════════════════════════════
-   NAV HIGHLIGHT + PROGRESS + BACK TO TOP
+   SCROLL: PROGRESS, RING, BACK-TO-TOP
    ══════════════════════════════════════ */
-(function navAndProgress() {
-  const navLinks = Array.from(document.querySelectorAll('.nav-bar a[href^="#"]'));
-  const sections = navLinks
-    .map(a => document.querySelector(a.getAttribute('href')))
-    .filter(Boolean);
-
+(function scrollHandlers() {
   const progressBar = document.getElementById('progressBar');
   const backToTop = document.getElementById('backToTop');
   const scrollRing = document.getElementById('scrollRing');
 
+  const RING_RADIUS = 23;
+  const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
   if (scrollRing) {
-    const r = 23;
-    const c = 2 * Math.PI * r;
-    scrollRing.style.strokeDasharray = c;
-    scrollRing.style.strokeDashoffset = c;
-  }
-
-  const sectionObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      const id = '#' + entry.target.id;
-      navLinks.forEach(a => {
-        if (a.getAttribute('href') === id) a.setAttribute('aria-current', 'location');
-        else a.removeAttribute('aria-current');
-      });
-    });
-  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
-
-  sections.forEach(s => sectionObserver.observe(s));
-
-  // Reveal section cards
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.08 });
-  document.querySelectorAll('.section-card').forEach(c => revealObserver.observe(c));
-
-  function onScroll() {
-    const h = document.documentElement;
-    const max = h.scrollHeight - h.clientHeight;
-    const pct = max > 0 ? (h.scrollTop / max) : 0;
-
-    if (progressBar) progressBar.style.width = (pct * 100) + '%';
-
-    if (scrollRing) {
-      const r = 23;
-      const c = 2 * Math.PI * r;
-      scrollRing.style.strokeDashoffset = c * (1 - pct);
-    }
-
-    if (backToTop) {
-      backToTop.classList.toggle('visible', h.scrollTop > 400);
-      backToTop.classList.toggle('complete', pct > 0.985);
-    }
+    scrollRing.style.strokeDasharray = RING_CIRCUMFERENCE;
+    scrollRing.style.strokeDashoffset = RING_CIRCUMFERENCE;
   }
 
   let ticking = false;
+
+  function update() {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progress = height > 0 ? Math.min(winScroll / height, 1) : 0;
+
+    progressBar.style.width = (progress * 100) + '%';
+
+    if (scrollRing) {
+      scrollRing.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
+    }
+
+    backToTop.classList.toggle('visible', winScroll > 400);
+    backToTop.classList.toggle('complete', progress > 0.985);
+
+    ticking = false;
+  }
+
   window.addEventListener('scroll', () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      onScroll();
-      ticking = false;
-    });
+    if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
   }, { passive: true });
 
-  onScroll();
+  window.addEventListener('resize', update, { passive: true });
+  update();
 })();
 
+(function revealSections() {
+  const sections = document.querySelectorAll('.section-card');
+  if (!('IntersectionObserver' in window)) {
+    sections.forEach(s => s.classList.add('visible'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  sections.forEach(s => io.observe(s));
+})();
 
-/* ══════════════════════════════════════
-   ORDER OF SERVICE — mobile list builder
-   ══════════════════════════════════════ */
+(function highlightNav() {
+  const links = Array.from(document.querySelectorAll('.nav-bar a'));
+  const sections = links
+    .map(l => document.querySelector(l.getAttribute('href')))
+    .filter(Boolean);
+  if (!('IntersectionObserver' in window) || !sections.length) return;
+
+  const visible = new Set();
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) visible.add(e.target.id);
+      else visible.delete(e.target.id);
+    });
+
+    links.forEach(l => l.removeAttribute('aria-current'));
+    if (!visible.size) return;
+
+    const firstId = sections.find(s => visible.has(s.id))?.id;
+    const link = links.find(l => l.getAttribute('href') === '#' + firstId);
+    if (link) link.setAttribute('aria-current', 'location');
+  }, { threshold: 0.2, rootMargin: '-20% 0px -50% 0px' });
+
+  sections.forEach(s => io.observe(s));
+})();
+
 (function buildProgrammeList() {
   const list = document.getElementById('programmeList');
-  const table = document.querySelector('.programme-table');
-  if (!list || !table) return;
+  if (!list) return;
+  const rows = document.querySelectorAll('.programme-table tbody tr');
+  rows.forEach(tr => {
+    const timeEl = tr.querySelector('.col-time');
+    const activityEl = tr.querySelector('.col-activity');
+    const time = timeEl ? timeEl.textContent.trim() : '';
+    const activity = activityEl ? activityEl.textContent.trim() : '';
 
-  const rows = table.querySelectorAll('tbody tr');
-  rows.forEach((tr) => {
-    const time = tr.querySelector('.col-time')?.textContent.trim() || '';
-    const activity = tr.querySelector('.col-activity')?.textContent.trim() || '';
     const li = document.createElement('li');
     if (tr.classList.contains('sub-row')) li.classList.add('sub');
+
     if (time) {
       const t = document.createElement('span');
       t.className = 'time';
@@ -487,118 +195,698 @@ subscribe();
     a.className = 'activity';
     a.textContent = activity;
     li.appendChild(a);
+
     list.appendChild(li);
   });
 })();
 
-
-/* ══════════════════════════════════════
-   GALLERY + LIGHTBOX
-   ══════════════════════════════════════ */
-(function galleryAndLightbox() {
-  const galleries = document.querySelectorAll('[data-gallery]');
-  const lightbox = document.getElementById('lightbox');
-  const lightboxImg = document.getElementById('lightboxImg');
-  const lightboxCaption = document.getElementById('lightboxCaption');
-  const lightboxCounter = document.getElementById('lightboxCounter');
-  const lightboxClose = document.getElementById('lightboxClose');
-  const lightboxPrev = document.getElementById('lightboxPrev');
-  const lightboxNext = document.getElementById('lightboxNext');
-  if (!lightbox) return;
-
-  let items = [];
-  let index = 0;
-
-  function collect() {
-    items = [];
-    galleries.forEach((g) => {
-      g.querySelectorAll('img').forEach((img) => {
-        items.push({
-          src: img.currentSrc || img.src,
-          alt: img.alt || '',
-          caption: img.dataset.caption || img.alt || '',
-        });
-      });
-    });
-  }
-
-  function open(i) {
-    index = i;
-    update();
-    lightbox.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    lightboxClose.focus();
-  }
-
-  function close() {
-    lightbox.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  function update() {
-    const it = items[index];
-    if (!it) return;
-    lightboxImg.src = it.src;
-    lightboxImg.alt = it.alt;
-    lightboxCaption.textContent = it.caption;
-    lightboxCounter.textContent = `${index + 1} / ${items.length}`;
-  }
-
-  function prev() { index = (index - 1 + items.length) % items.length; update(); }
-  function next() { index = (index + 1) % items.length; update(); }
-
-  galleries.forEach((g) => {
-    g.addEventListener('click', (e) => {
-      const item = e.target.closest('.gallery-item');
-      if (!item) return;
-      collect();
-      const img = item.querySelector('img');
-      const i = items.findIndex(x => x.src === (img.currentSrc || img.src));
-      open(i < 0 ? 0 : i);
-    });
-  });
-
-  lightboxClose?.addEventListener('click', close);
-  lightboxPrev?.addEventListener('click', prev);
-  lightboxNext?.addEventListener('click', next);
-
-  lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) close();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (!lightbox.classList.contains('open')) return;
-    if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') prev();
-    if (e.key === 'ArrowRight') next();
-  });
-})();
-
-
 /* ══════════════════════════════════════
    SHARE
    ══════════════════════════════════════ */
-window.shareThis = async function shareThis() {
+function showToast(message) {
   const toast = document.getElementById('shareToast');
-  const data = {
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+async function shareThis() {
+  const shareData = {
     title: 'In Loving Memory of Rael Ndeve',
-    text: 'A memorial programme celebrating the life of Rael Ndeve (1926–2026).',
-    url: window.location.href,
+    text: 'A memorial programme celebrating the life of Rael Ndeve.',
+    url: window.location.href
   };
 
-  try {
-    if (navigator.share) {
-      await navigator.share(data);
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
       return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
     }
-    await navigator.clipboard.writeText(data.url);
-    if (toast) {
-      toast.textContent = 'Link copied to clipboard';
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast('Link copied to clipboard');
+    } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+      const ta = document.createElement('textarea');
+      ta.value = window.location.href;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Link copied to clipboard');
+    } else {
+      showToast('Copy this link: ' + window.location.href);
     }
   } catch (err) {
-    if (err && err.name === 'AbortError') return;
-    console.error('Share failed:', err);
+    showToast('Sharing not available on this device');
   }
+}
+
+/* ══════════════════════════════════════
+   SERVICE-PAST STATE
+   ══════════════════════════════════════ */
+function applyServiceState() {
+  const actions = document.querySelector('.hero-actions');
+  if (!actions) return;
+
+  const forced = new URLSearchParams(location.search).get('after') === '1';
+  const passed = Date.now() > SERVICE_END.getTime();
+  if (!passed && !forced) return;
+
+  document.body.setAttribute('data-service', 'past');
+
+  const prog = actions.querySelector('a[href="#service"]');
+  if (prog) {
+    const candle = document.createElement('a');
+    candle.href = '#tribute';
+    candle.className = 'btn-pill btn-pill-ghost';
+    candle.innerHTML = `
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3 C 9 8, 9 11, 12 13 C 15 11, 15 8, 12 3 Z"/>
+        <rect x="10" y="14" width="4" height="7" rx="1"/>
+      </svg>
+      Light a candle`;
+    prog.replaceWith(candle);
+  }
+
+  const serviceTime = document.querySelector('.hero-service time');
+  if (serviceTime) {
+    serviceTime.textContent = 'Saturday, September 19, 2026';
+    const label = serviceTime.closest('.hero-service-item');
+    if (label && !label.querySelector('.service-past-note')) {
+      const note = document.createElement('span');
+      note.className = 'service-past-note';
+      note.textContent = 'Service held';
+      label.insertBefore(note, label.firstChild);
+    }
+  }
+}
+applyServiceState();
+
+/* ══════════════════════════════════════
+   CANDLE WALL — shared, real-time (Firebase Firestore, modular SDK)
+   ══════════════════════════════════════ */
+let db = null;
+let firebaseReady = false;
+
+let latestCandles = [];
+let maxSeenTime = 0;
+let hasLoadedOnce = false;
+let unsubscribeCandles = null;
+let candleLimit = CANDLES_PAGE_SIZE;
+let candleTick = null;
+let pendingScrollCandleId = null;
+let expandedMessageIds = new Set(); // which candle messages the visitor has tapped open
+
+try {
+  if (window.FIREBASE_CONFIG) {
+    const app = initializeApp(window.FIREBASE_CONFIG);
+
+    const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+    if (isLocalHost) {
+      let debugToken = null;
+      try { debugToken = localStorage.getItem('appcheck-debug-token'); } catch (e) {}
+      if (!debugToken) {
+        debugToken = crypto.randomUUID();
+        try { localStorage.setItem('appcheck-debug-token', debugToken); } catch (e) {}
+      }
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
+      console.info('App Check debug token (register once in Firebase Console → App Check → Manage debug tokens):', debugToken);
+    }
+
+    if (RECAPTCHA_SITE_KEY && RECAPTCHA_SITE_KEY.indexOf('PASTE_') !== 0) {
+      try {
+        initializeAppCheck(app, {
+          provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),
+          isTokenAutoRefreshEnabled: true
+        });
+      } catch (e) {
+        console.warn('App Check init failed (continuing without):', e);
+      }
+    }
+
+    db = getFirestore(app);
+    firebaseReady = true;
+  }
+} catch (e) {
+  console.error('Firebase init failed:', e);
+  firebaseReady = false;
+}
+
+function formatRelativeTime(date) {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return hours + 'h ago';
+  const days = Math.floor(hours / 24);
+  if (days < 30) return days + 'd ago';
+  return Math.floor(days / 30) + 'mo ago';
+}
+
+/* SVG candle: teardrop outer flame, inner core, candle body with a soft
+   radial glow behind the flame. The `.flame-outer` / `.flame-inner` classes
+   are the hook for the flicker animation, replacing brittle path[fill=…]
+   selectors. */
+const candleSVG = `
+  <svg class="candle-entry-svg" viewBox="0 0 40 59" aria-hidden="true">
+    <defs>
+      <radialGradient id="candleGlow" cx="50%" cy="32%" r="52%">
+        <stop offset="0%"   stop-color="#FFD07B" stop-opacity="0.55"/>
+        <stop offset="100%" stop-color="#FFD07B" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="waxBody" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#E3CDA0"/>
+        <stop offset="40%"  stop-color="#F5E9C7"/>
+        <stop offset="100%" stop-color="#D4BB85"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="20" cy="20" rx="15" ry="19" fill="url(#candleGlow)"/>
+    <path class="flame-outer" fill="#FFB03A"
+          d="M20 5
+             C 22 10, 26 14, 26 18.5
+             C 26 22.5, 23.4 25, 20 25
+             C 16.6 25, 14 22.5, 14 18.5
+             C 14 14, 18 10, 20 5 Z"/>
+    <path class="flame-inner" fill="#FFE7B0"
+          d="M20 12
+             C 21 15, 22.5 16.8, 22.5 19
+             C 22.5 20.8, 21.4 22, 20 22
+             C 18.6 22, 17.5 20.8, 17.5 19
+             C 17.5 16.8, 19 15, 20 12 Z"/>
+    <rect x="19.2" y="25" width="1.6" height="7" fill="#2b1e10"/>
+    <rect x="19.2" y="25" width="1.6" height="3" fill="#FF8A2B"/>
+    <rect x="13.5" y="31" width="13" height="24" rx="1.4" fill="url(#waxBody)"/>
+    <ellipse cx="20" cy="31.2" rx="6.5" ry="1.6" fill="#F0E1B8" opacity="0.75"/>
+    <ellipse cx="20" cy="31.2" rx="4.5" ry="1" fill="#E8D5A3" opacity="0.6"/>
+    <path d="M 26.3 34 Q 27.1 37, 26.1 39.2 Q 25.2 37, 26.3 34 Z" fill="#E8D5A3" opacity="0.85"/>
+    <ellipse cx="20" cy="55" rx="9" ry="1.5" fill="rgba(0,0,0,0.28)"/>
+  </svg>
+`;
+// Flame height reflects two things: the single newest candle on the wall is
+// always the tallest, and among the rest, a candle with a message stands a
+// little taller than a blank one. A small per-candle hash adds gentle
+// variation within each tier so they don't look mechanically identical.
+function sizeForCandle(candle, isNewest) {
+  let hash = 0;
+  const id = candle.id;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  const wobble = hash % 5; // 0–4px of organic variation
+
+  if (isNewest) return 40 + wobble;          // 40–44px, always the tallest
+  return candle.message ? 30 + wobble : 24 + wobble; // 30–34px vs 24–28px
+}
+
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/`/g, '&#96;');
+}
+
+function removeLoadMore() {
+  const existing = document.getElementById('candleLoadMore');
+  if (existing) existing.remove();
+}
+
+function setWallState(state, message, showRetry) {
+  const wall = document.getElementById('candleWall');
+  const summary = document.getElementById('candleSummary');
+  if (!wall) return;
+
+  removeLoadMore();
+  wall.innerHTML = '';
+  const p = document.createElement('p');
+  p.className = 'candle-wall-empty' + (state === 'error' ? ' is-error' : '');
+  p.textContent = message;
+  wall.appendChild(p);
+
+  if (showRetry) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-pill btn-pill-ghost candle-retry';
+    btn.textContent = 'Try again';
+    btn.addEventListener('click', () => {
+      candleLimit = CANDLES_PAGE_SIZE;
+      subscribeToCandles(true);
+    });
+    wall.appendChild(btn);
+  }
+  if (summary) summary.textContent = '';
+}
+
+function renderLoadMore(mayHaveMore) {
+  removeLoadMore();
+  if (!mayHaveMore) return;
+
+  const wall = document.getElementById('candleWall');
+  if (!wall) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'candleLoadMore';
+  btn.className = 'btn-pill btn-pill-ghost candle-load-more';
+  btn.textContent = 'Load older candles';
+  btn.addEventListener('click', () => {
+    candleLimit += CANDLES_PAGE_SIZE;
+    btn.disabled = true;
+    btn.textContent = 'Loading…';
+    subscribeToCandles(false);
+  });
+
+  // Summary now sits above the wall, so anchor the button after the wall itself.
+  wall.after(btn);
+}
+
+/* Decide which message candles are actually truncated. Runs after the wall
+   has been populated and re-runs on resize. Sets data-truncated on the
+   button so the CSS hover cue and the click handler both key off the same
+   flag. Expanded candles are never re-collapsed. */
+function measureCandleSnippets() {
+  document.querySelectorAll('.candle-entry-toggle[data-has-message="true"]').forEach((toggle) => {
+    const snippet = toggle.querySelector('.candle-entry-snippet');
+    if (!snippet) return;
+
+    // A visitor-expanded candle stays expanded regardless of measurement.
+    if (toggle.getAttribute('aria-expanded') === 'true') {
+      toggle.dataset.truncated = 'true';
+      return;
+    }
+
+    // +1 tolerance absorbs sub-pixel rounding on perfect two-line snippets.
+    const truncated = snippet.scrollHeight > snippet.clientHeight + 1;
+    toggle.dataset.truncated = truncated ? 'true' : 'false';
+  });
+}
+
+let snippetResizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(snippetResizeTimer);
+  snippetResizeTimer = setTimeout(measureCandleSnippets, 150);
+}, { passive: true });
+
+function renderCandles(candles) {
+  const wall = document.getElementById('candleWall');
+  const summary = document.getElementById('candleSummary');
+  const printList = document.getElementById('candlePrintList');
+  const status = document.getElementById('candleStatus');
+
+  const previousMaxTime = maxSeenTime;
+  latestCandles = candles;
+  wall.innerHTML = '';
+  if (printList) printList.innerHTML = '';
+
+  if (!candles.length) {
+    setWallState('empty', 'No candles lit yet — be the first to leave a light.', false);
+    return;
+  }
+
+  // candles[] is always sorted newest-first by the query, regardless of how
+  // many pages have been loaded, so the true newest is always candles[0].
+  const newestId = candles[0]?.id;
+
+  candles.forEach((candle) => {
+    const t = candle.date.getTime();
+    // Only glow for candles newer than the newest we've previously rendered.
+    // Loading older pages won't trip this because their timestamps are lower.
+    const isNew = hasLoadedOnce && t > previousMaxTime;
+
+    const entry = document.createElement('div');
+    entry.className = 'candle-entry' + (isNew ? ' is-new' : '');
+    entry.dataset.id = candle.id;
+
+    const svgWrap = document.createElement('div');
+    svgWrap.innerHTML = candleSVG;
+    const svg = svgWrap.firstElementChild;
+    svg.style.setProperty('--flame-size', sizeForCandle(candle, candle.id === newestId) + 'px');
+
+    const name = document.createElement('div');
+    name.className = 'candle-entry-name';
+    name.textContent = candle.name;
+
+    const time = document.createElement('div');
+    time.className = 'candle-entry-time';
+    const timeEl = document.createElement('time');
+    timeEl.dateTime = candle.date.toISOString();
+    timeEl.textContent = formatRelativeTime(candle.date);
+    time.appendChild(timeEl);
+
+    if (candle.message) {
+      // Candles with a message become tap-to-reveal. The snippet is the
+      // message itself, clamped to two lines by CSS; expanding sets
+      // aria-expanded="true" and the clamp is dropped. The button wraps the
+      // flame, name, snippet, and time so the whole tile is a hit target.
+      const isOpen = expandedMessageIds.has(candle.id);
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'candle-entry-toggle';
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      toggle.dataset.hasMessage = 'true';
+      toggle.dataset.truncated = 'false'; // measureCandleSnippets will correct this
+
+      const snippet = document.createElement('span');
+      snippet.className = 'candle-entry-snippet';
+      snippet.textContent = '\u201C' + candle.message + '\u201D';
+
+      toggle.append(svg, name, snippet, time);
+
+      toggle.addEventListener('click', () => {
+        // Only truncated messages toggle — short ones stay static text.
+        if (toggle.dataset.truncated !== 'true') return;
+        const nowOpen = toggle.getAttribute('aria-expanded') !== 'true';
+        toggle.setAttribute('aria-expanded', String(nowOpen));
+        if (nowOpen) expandedMessageIds.add(candle.id);
+        else expandedMessageIds.delete(candle.id);
+      });
+
+      entry.appendChild(toggle);
+    } else {
+      // No message — plain, non-interactive entry wrapped in a div so it
+      // doesn't carry button semantics for screen readers.
+      const body = document.createElement('div');
+      body.className = 'candle-entry-body';
+      body.append(svg, name, time);
+      entry.appendChild(body);
+    }
+
+    wall.appendChild(entry);
+
+    if (t > maxSeenTime) maxSeenTime = t;
+  });
+
+  // Drop tracked ids for candles no longer on the wall (keeps the set small
+  // over a long-running session rather than growing forever).
+  const visibleIds = new Set(candles.map(c => c.id));
+  expandedMessageIds.forEach(id => { if (!visibleIds.has(id)) expandedMessageIds.delete(id); });
+
+  // Measure after layout so snippet heights are final. Font loading can
+  // re-flow the wall (Cormorant swaps in late), so we measure again when
+  // fonts.ready resolves.
+  requestAnimationFrame(() => {
+    measureCandleSnippets();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measureCandleSnippets);
+    }
+  });
+
+  if (hasLoadedOnce && status) {
+    const fresh = candles.filter(c => c.date.getTime() > previousMaxTime);
+    if (fresh.length === 1)      status.textContent = `A new candle was lit by ${fresh[0].name}.`;
+    else if (fresh.length > 1)   status.textContent = `${fresh.length} new candles were lit.`;
+  }
+  hasLoadedOnce = true;
+
+  const total = candles.length;
+  summary.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
+
+  if (printList) {
+    const h3 = document.createElement('h3');
+    h3.textContent = summary.textContent;
+    printList.appendChild(h3);
+    const ul = document.createElement('ul');
+    candles.forEach(c => {
+      const li = document.createElement('li');
+      const strong = document.createElement('strong');
+      strong.textContent = c.name;
+      li.appendChild(strong);
+      if (c.message) li.appendChild(document.createTextNode(' — “' + c.message + '”'));
+      ul.appendChild(li);
+    });
+    printList.appendChild(ul);
+  }
+
+  if (pendingScrollCandleId) {
+    const target = wall.querySelector(`[data-id="${pendingScrollCandleId}"]`);
+    if (target) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      target.classList.add('is-mine');
+      setTimeout(() => target.classList.remove('is-mine'), 2400);
+    }
+    pendingScrollCandleId = null;
+  }
+}
+
+function subscribeToCandles(showLoading = true) {
+  if (!firebaseReady) {
+    setWallState('error', 'The candle wall is temporarily unavailable.', false);
+    return;
+  }
+  if (unsubscribeCandles) { unsubscribeCandles(); unsubscribeCandles = null; }
+  if (showLoading) setWallState('loading', 'Loading candles…', false);
+
+  const q = query(
+    collection(db, CANDLES_COLLECTION),
+    orderBy('timestamp', 'desc'),
+    limit(candleLimit)
+  );
+
+  unsubscribeCandles = onSnapshot(
+    q,
+    (snapshot) => {
+      const candles = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || '',
+          message: data.message || '',
+          date: data.timestamp ? data.timestamp.toDate() : new Date()
+        };
+      });
+      renderCandles(candles);
+      renderLoadMore(snapshot.docs.length === candleLimit);
+    },
+    (err) => {
+      console.error('Firestore snapshot error:', err);
+      setWallState('error', 'The candle wall could not be loaded.', true);
+    }
+  );
+}
+subscribeToCandles(true);
+
+async function submitCandle(event) {
+  event.preventDefault();
+  const nameInput = document.getElementById('candleName');
+  const messageInput = document.getElementById('candleMessage');
+  const hint = document.getElementById('candleHint');
+  const submitBtn = document.getElementById('candleSubmitBtn');
+
+  const name = nameInput.value.trim();
+  const message = messageInput.value.trim();
+
+  if (!name) {
+    hint.textContent = 'Please enter your name to light a candle.';
+    hint.classList.add('error');
+    nameInput.focus();
+    return;
+  }
+  if (name.length > 40) {
+    hint.textContent = 'Name is too long (40 characters max).';
+    hint.classList.add('error');
+    nameInput.focus();
+    return;
+  }
+  if (message.length > 140) {
+    hint.textContent = 'Message is too long (140 characters max).';
+    hint.classList.add('error');
+    messageInput.focus();
+    return;
+  }
+
+  if (!firebaseReady) {
+    hint.textContent = 'The candle wall is temporarily unavailable — please try again shortly.';
+    hint.classList.add('error');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.classList.add('is-lighting');
+  hint.classList.remove('error');
+  hint.textContent = 'Lighting your candle…';
+
+  try {
+    const payload = { name, timestamp: serverTimestamp() };
+    if (message) payload.message = message;
+    const docRef = await addDoc(collection(db, CANDLES_COLLECTION), payload);
+    pendingScrollCandleId = docRef.id;
+
+    nameInput.value = '';
+    messageInput.value = '';
+    hint.textContent = 'Your candle is now lit for everyone to see.';
+  } catch (e) {
+    console.error('Candle submit failed:', e);
+    hint.textContent = 'Something went wrong — please try again.';
+    hint.classList.add('error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('is-lighting');
+  }
+}
+
+// Ctrl/Cmd+Enter submits the candle form from the textarea
+document.getElementById('candleForm')?.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    e.currentTarget.requestSubmit();
+  }
+});
+
+// Relative-time ticker, keyed by document id so order changes don't drift
+function startCandleTicker() {
+  if (candleTick) return;
+  candleTick = setInterval(() => {
+    document.querySelectorAll('.candle-entry').forEach((el) => {
+      const c = latestCandles.find(x => x.id === el.dataset.id);
+      const timeEl = el.querySelector('.candle-entry-time time');
+      if (!c || !timeEl) return;
+      timeEl.textContent = formatRelativeTime(c.date);
+    });
+  }, 60000);
+}
+startCandleTicker();
+window.addEventListener('beforeunload', () => { if (candleTick) clearInterval(candleTick); });
+
+/* ══════════════════════════════════════
+   GALLERY & LIGHTBOX
+   ══════════════════════════════════════ */
+const galleryData = {
+  memories: [
+    { src: 'photos/rael-1.jpg', caption: '', focus: 'top' },
+    { src: 'photos/rael-2.jpg', caption: '', focus: 'top' },
+    { src: 'photos/rael-3.jpg', caption: '' },
+    { src: 'photos/rael-4.jpg', caption: 'With family, March 2026' },
+  ]
 };
+
+const allPhotos = galleryData.memories.filter(p => p && p.src);
+
+(function buildGallery() {
+  const section = document.getElementById('gallery');
+  const navLink = document.querySelector('.nav-bar a[href="#gallery"]');
+  const grid = document.querySelector('.gallery-grid');
+
+  if (!allPhotos.length) {
+    section.hidden = true;
+    if (navLink) navLink.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+  if (navLink) navLink.hidden = false;
+
+  allPhotos.forEach((p, idx) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', `View photo: ${p.caption}`);
+    item.innerHTML = `
+      <img src="${p.src}" alt="${escapeHTML(p.caption)}" loading="lazy" style="${p.focus === 'top' ? 'object-position: center 10%;' : ''}">
+      <span class="gallery-zoom" aria-hidden="true">⤢</span>
+      <div class="gallery-caption">${escapeHTML(p.caption)}</div>
+    `;
+    item.addEventListener('click', () => openLightbox(idx));
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(idx); }
+    });
+    grid.appendChild(item);
+  });
+})();
+
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+const lightboxCounter = document.getElementById('lightboxCounter');
+const lightboxPrev = document.getElementById('lightboxPrev');
+const lightboxNext = document.getElementById('lightboxNext');
+let currentPhoto = 0;
+let lastFocusedElement = null;
+
+function updateLightboxContent() {
+  const p = allPhotos[currentPhoto];
+  lightboxImg.src = p.src;
+  lightboxImg.alt = p.caption;
+  lightboxCaption.textContent = p.caption;
+  lightboxCounter.textContent = `Photo ${currentPhoto + 1} of ${allPhotos.length}`;
+  const multi = allPhotos.length > 1;
+  lightboxPrev.hidden = !multi;
+  lightboxNext.hidden = !multi;
+  const hint = document.getElementById('lightboxHint');
+  if (hint) hint.hidden = !multi;
+}
+
+function openLightbox(index) {
+  if (!allPhotos.length) return;
+  currentPhoto = index;
+  lastFocusedElement = document.activeElement;
+  updateLightboxContent();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('lightboxClose').focus();
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  if (lastFocusedElement) lastFocusedElement.focus();
+}
+
+function navigateLightbox(dir) {
+  if (allPhotos.length < 2) return;
+  currentPhoto = (currentPhoto + dir + allPhotos.length) % allPhotos.length;
+  updateLightboxContent();
+}
+
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+lightboxNext.addEventListener('click', () => navigateLightbox(1));
+
+document.addEventListener('keydown', (e) => {
+  if (!lightbox.classList.contains('open')) return;
+
+  if (e.key === 'Escape')     { closeLightbox(); return; }
+  if (e.key === 'ArrowLeft')  { navigateLightbox(-1); return; }
+  if (e.key === 'ArrowRight') { navigateLightbox(1);  return; }
+
+  if (e.key === 'Tab') {
+    const focusables = Array.from(lightbox.querySelectorAll('button:not([hidden])'));
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last  = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+});
+
+let touchStartX = 0;
+lightbox.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+lightbox.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].screenX;
+  if (touchEndX < touchStartX - 40) navigateLightbox(1);
+  if (touchEndX > touchStartX + 40) navigateLightbox(-1);
+}, { passive: true });
+
+/* ══════════════════════════════════════
+   EXPOSE INLINE-HANDLER FUNCTIONS
+   Module scope is not global, so anything referenced
+   from onclick="" in index.html must be re-exported here.
+   ══════════════════════════════════════ */
+window.shareThis    = shareThis;
+window.submitCandle = submitCandle;
