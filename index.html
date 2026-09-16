@@ -73,7 +73,1686 @@
   }
   </script>
 
-  <link rel="stylesheet" href="styles.css">
+  <style>
+/* ── BASE VARIABLES: LIGHT (default) ── */
+    :root {
+      --bg-deep:       #FAF6EF;
+      --bg-hero:       #F5EEE0;
+      --bg-card:       #FFFFFF;
+      --bg-card-alt:   #F6F0E4;
+      --bg-elevated:   #FFFFFF;
+      --gold:          #7E4F1C;
+      --gold-light:    #5C3814;
+      --gold-dim:      #C9A06B;
+      --text-primary:  #1A150F;
+      --text-body:     #2E2820;
+      --text-muted:    #5E5344;
+      --border:        rgba(138, 90, 40, 0.28);
+      --border-subtle: rgba(26, 21, 15, 0.12);
+      --nav-surface:   rgba(255, 255, 255, 0.9);
+      --toast-surface: rgba(255, 255, 255, 0.97);
+      --field-focus-bg: rgba(138, 90, 40, 0.06);
+      --placeholder-bg: #EFE7D6;
+      --color-error:   #9C3A26;
+      --petal-fill:    rgba(138, 90, 40, 0.35);
+      --petal-stroke:  rgba(110, 74, 31, 0.32);
+      --petal-vein:    rgba(110, 74, 31, 0.24);
+      --fab-bg:        rgba(28, 23, 18, 0.92);
+      --fab-bg-hover:  #8A5A28;
+      --fab-icon:      #E3AD6E;
+      --fab-icon-hover: #14110D;
+      --fab-ring-track: rgba(138, 90, 40, 0.18);
+      --fab-ring-fill:  #8A5A28;
+      --font-heading:  'Cormorant Garamond', Georgia, serif;
+      --font-body:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* ── BASE VARIABLES: DARK (opt-in via toggle) ── */
+    [data-theme="dark"] {
+      --bg-deep:       #14110D;
+      --bg-hero:       #0F0C09;
+      --bg-card:       #1C1712;
+      --bg-card-alt:   #211B15;
+      --bg-elevated:   #241D16;
+      --gold:          #BD7A3E;
+      --gold-light:    #E3AD6E;
+      --gold-dim:      #7A5228;
+      --text-primary:  #F5F0E8;
+      --text-body:     #D1C7BD;
+      --text-muted:    #8E8375;
+      --border:        rgba(189, 122, 62, 0.2);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --nav-surface:   rgba(20, 17, 13, 0.96);
+      --toast-surface: rgba(28, 23, 18, 0.96);
+      --field-focus-bg: rgba(33, 27, 21, 0.9);
+      --placeholder-bg: #191510;
+      --color-error:   #D98873;
+      --petal-fill:    rgba(232, 213, 163, 0.45);
+      --petal-stroke:  rgba(227, 173, 110, 0.35);
+      --petal-vein:    rgba(227, 173, 110, 0.25);
+    }
+
+    html { transition: background-color 0.25s ease; }
+    body, .section-card, .nav-bar-wrapper, .candle-form, .candle-wall,
+    input, textarea, button {
+      transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    [hidden] { display: none !important; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+      overflow-x: clip;
+    }
+
+    body {
+      font-family: var(--font-body);
+      line-height: 1.8;
+      color: var(--text-body);
+      background-color: var(--bg-deep);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      max-width: 100%;
+    }
+
+    .skip-link {
+      position: absolute;
+      top: -60px;
+      left: 12px;
+      background: var(--gold);
+      color: var(--bg-deep);
+      padding: 10px 18px;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      z-index: 2000;
+      transition: top 0.2s ease;
+    }
+    .skip-link:focus { top: 12px; }
+
+    a:focus-visible,
+    button:focus-visible,
+    .gallery-item:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible,
+    .table-scroll:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ══════════════════════════════════════
+       FLOATING PETALS
+       ══════════════════════════════════════ */
+    .petals {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      bottom: -20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 32%, var(--gold-light), var(--gold) 55%, transparent 78%);
+      box-shadow: 0 0 7px 1px var(--petal-fill);
+      animation: rise linear infinite;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    @keyframes rise {
+      0%   { transform: translateY(0) translateX(0) scale(0.85); opacity: 0; }
+      10%  { opacity: 0.6; }
+      55%  { transform: translateY(-55vh) translateX(24px) scale(1); }
+      88%  { opacity: 0.3; }
+      100% { transform: translateY(-108vh) translateX(-18px) scale(0.7); opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════
+       HERO
+       ══════════════════════════════════════ */
+    .hero {
+      background-color: var(--bg-hero);
+      color: var(--text-primary);
+      padding: 96px 24px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 60% 48% at 22% 8%, rgba(189, 122, 62, 0.14) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(15, 12, 9, 0) 0%, var(--bg-hero) 94%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 14%;
+      right: 14%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(189, 122, 62, 0.28), transparent);
+    }
+
+    .hero .container { position: relative; z-index: 2; }
+
+    .hero-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .hero-portrait-frame {
+      position: relative;
+      width: 250px;
+      aspect-ratio: 4 / 5;
+      padding: 9px;
+      flex-shrink: 0;
+    }
+
+    .hero-portrait-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--border);
+    }
+
+    .hero-portrait-frame::after {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border: 1px solid rgba(189, 122, 62, 0.15);
+      pointer-events: none;
+    }
+
+    .hero-portrait-img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 15%;
+      background-color: var(--placeholder-bg);
+      filter: sepia(0.35) saturate(1.15) contrast(1.05) brightness(0.96);
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .hero-monogram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 5rem;
+      line-height: 1;
+      color: var(--gold-dim);
+      background: radial-gradient(ellipse at 50% 35%, var(--bg-card-alt) 0%, var(--placeholder-bg) 100%);
+      filter: none;
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      max-width: 520px;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 1.1rem;
+      color: var(--gold-light);
+      opacity: 0.94;
+      margin: 0;
+    }
+
+    .hero-name {
+      font-family: var(--font-heading);
+      font-weight: 500;
+      font-size: clamp(2.5rem, 8vw, 3.4rem);
+      line-height: 1.06;
+      letter-spacing: 0.2px;
+      color: var(--text-primary);
+      text-shadow: 0 4px 30px rgba(189, 122, 62, 0.16);
+      margin: 2px 0 0;
+    }
+
+    .hero-dates {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      row-gap: 14px;
+      column-gap: 26px;
+      margin: 0;
+    }
+
+    .hero-date-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .hero-date-label {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-weight: 500;
+      font-size: 0.98rem;
+      color: var(--gold-light);
+      line-height: 1;
+    }
+
+    .hero-date-value {
+      font-family: var(--font-body);
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+    }
+
+    .hero-dates-dot {
+      width: 1px;
+      height: 34px;
+      background: linear-gradient(180deg, transparent, var(--gold-dim), transparent);
+      flex-shrink: 0;
+      border-radius: 0;
+    }
+
+    .hero-rule {
+      display: block;
+      width: 44px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+
+    .hero-service {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      row-gap: 12px;
+      column-gap: 24px;
+    }
+
+    .hero-service-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .hero-service-icon {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+      color: var(--gold-dim);
+    }
+
+    .hero-service-text {
+      font-family: var(--font-body);
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: 0.2px;
+      line-height: 1.3;
+    }
+
+    .hero-service-sep {
+      width: 1px;
+      height: 22px;
+      background: linear-gradient(180deg, transparent, var(--gold-dim), transparent);
+      flex-shrink: 0;
+    }
+
+    .service-past-note {
+      font-size: 0.7rem;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+      .hero-service { flex-direction: column; }
+      .hero-service-sep { width: 60%; height: 1px; }
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .btn-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 22px;
+      background: transparent;
+      color: var(--gold-light);
+      text-decoration: none;
+      border-radius: 30px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+      border: 1px solid var(--gold-dim);
+      cursor: pointer;
+      font-family: var(--font-body);
+      white-space: nowrap;
+    }
+
+    .btn-pill:hover {
+      color: var(--bg-deep);
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+
+    .btn-pill.is-lighting {
+      animation: igniteGlow 0.9s ease-in-out infinite;
+    }
+    @keyframes igniteGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 176, 58, 0); }
+      50%      { box-shadow: 0 0 18px 4px rgba(255, 176, 58, 0.55); }
+    }
+
+    .btn-pill .btn-icon {
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .btn-pill.btn-pill-ghost {
+      color: var(--text-body);
+      border-color: var(--border-subtle);
+    }
+    .btn-pill.btn-pill-ghost:hover {
+      color: var(--gold-light);
+      border-color: var(--gold-dim);
+      background: rgba(189, 122, 62, 0.06);
+    }
+
+    .btn-pill.btn-pill-primary {
+      background: var(--gold-light);
+      color: var(--bg-deep);
+      border-color: var(--gold-light);
+    }
+    .btn-pill.btn-pill-primary:hover {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--bg-deep);
+    }
+
+    .btn-pill.btn-pill-quiet {
+      color: var(--text-muted);
+      border-color: transparent;
+      background: transparent;
+    }
+    .btn-pill.btn-pill-quiet:hover {
+      color: var(--gold-light);
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .share-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--toast-surface);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-light);
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 0.78rem;
+      letter-spacing: 1px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.35s ease;
+      z-index: 1100;
+      backdrop-filter: blur(10px);
+      pointer-events: none;
+      font-family: var(--font-body);
+      max-width: calc(100% - 140px);
+    }
+
+    .share-toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 860px) {
+      .hero { padding: 116px 44px 100px; }
+
+      .hero-layout {
+        flex-direction: row;
+        align-items: center;
+        gap: 88px;
+        max-width: 1080px;
+        text-align: left;
+      }
+
+      .hero-portrait-frame { width: 310px; }
+
+      .hero-content {
+        align-items: flex-start;
+        max-width: none;
+      }
+
+      .hero-dates,
+      .hero-actions {
+        justify-content: flex-start;
+      }
+
+      .hero-name { font-size: clamp(3rem, 4.6vw, 4.1rem); }
+    }
+
+    /* ══════════════════════════════════════
+       NAVIGATION & PROGRESS BAR
+       ══════════════════════════════════════ */
+    .nav-bar-wrapper {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--nav-surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .theme-toggle {
+      position: fixed;
+      bottom: 92px;
+      right: 28px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--fab-bg);
+      border: none;
+      border-radius: 50%;
+      color: var(--fab-icon);
+      cursor: pointer;
+      z-index: 90;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      transition: color 0.3s ease, background 0.3s ease, transform 0.2s ease;
+    }
+    .theme-toggle:hover { background: var(--fab-bg-hover); color: var(--fab-icon-hover); transform: translateY(-2px); }
+
+    .theme-icon { width: 18px; height: 18px; position: absolute; transition: opacity 0.25s ease, transform 0.3s ease; }
+    .theme-icon-moon { opacity: 0; transform: rotate(-60deg) scale(0.6); }
+    .theme-icon-sun { opacity: 1; transform: rotate(0deg) scale(1); }
+
+    [data-theme="dark"] .theme-icon-sun { opacity: 0; transform: rotate(60deg) scale(0.6); }
+    [data-theme="dark"] .theme-icon-moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+    @media (max-width: 720px) {
+      .theme-toggle { bottom: 76px; right: 20px; width: 40px; height: 40px; }
+      .theme-icon { width: 16px; height: 16px; }
+    }
+
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-bar a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 15px 14px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: color 0.3s ease;
+      position: relative;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .nav-bar a::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-bar a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) scaleX(0);
+      width: 18px;
+      height: 2px;
+      background-color: var(--gold);
+      transition: transform 0.3s ease;
+    }
+
+    .nav-bar a:hover,
+    .nav-bar a[aria-current="location"] { color: var(--gold-light); }
+
+    .nav-bar a:hover::before,
+    .nav-bar a[aria-current="location"]::before { opacity: 1; }
+
+    .nav-bar a:hover::after,
+    .nav-bar a[aria-current="location"]::after { transform: translateX(-50%) scaleX(1); }
+
+    .progress-container { width: 100%; height: 3px; background: transparent; }
+    .progress-bar {
+      height: 100%;
+      background: var(--gold);
+      width: 0%;
+      transition: width 0.1s ease-out;
+      box-shadow: 0 0 8px rgba(138, 90, 40, 0.5);
+    }
+
+    /* ══════════════════════════════════════
+       SECTIONS & CARDS
+       ══════════════════════════════════════ */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 4px;
+      padding: 56px 48px;
+      margin: 36px 0;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+      position: relative;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.9s ease, transform 0.9s ease, box-shadow 0.4s ease;
+    }
+
+    [data-theme="dark"] .section-card {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    .section-card.visible { opacity: 1; transform: translateY(0); }
+
+    .section-card--alt {
+      background: var(--bg-card-alt);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    }
+    [data-theme="dark"] .section-card--alt {
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+        /* Candle Wall reads a touch too washed-out against the near-white page
+       background in light mode; nudge just this section darker. In dark
+       mode, fall back to the normal --bg-card-alt so it matches the rest
+       of the page instead of staying a fixed light tan. */
+    .candle-section {
+      background: var(--bg-card-alt);
+    }
+
+    [data-theme="dark"] .candle-section {
+      background: var(--bg-card-alt);
+    }
+
+    .section-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 15%;
+      right: 15%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+
+    .section-header { text-align: center; margin-bottom: 44px; }
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--gold-light);
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+      text-wrap: balance;
+    }
+
+    .section-divider {
+      width: 56px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .section-divider.divider-spaced {
+      margin-top: 32px;
+    }
+
+    .section-divider::after {
+      content: '◆';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.4rem;
+      color: var(--gold);
+      padding: 0 6px;
+      background: inherit;
+    }
+
+    /* ══════════════════════════════════════
+       ORDER OF SERVICE
+       ══════════════════════════════════════ */
+    .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .programme-table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: 0.9rem; }
+    .programme-table thead th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 0.78rem;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: var(--gold);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      background: rgba(138, 90, 40, 0.04);
+    }
+
+    .programme-table tbody td { padding: 16px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
+    .programme-table .col-time {
+      font-weight: 500;
+      color: var(--gold);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      width: 150px;
+    }
+    .programme-table .col-activity {
+      color: var(--text-primary);
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 500;
+    }
+    .programme-table tr.sub-row td.col-activity {
+      padding-left: 32px;
+      font-style: italic;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      font-weight: 400;
+      position: relative;
+    }
+    .programme-table tr.sub-row td.col-activity::before {
+      content: '—';
+      position: absolute;
+      left: 16px;
+      color: var(--gold-dim);
+    }
+
+    .programme-list {
+      display: none;
+      list-style: none;
+      padding-left: 24px;
+      border-left: 2px solid var(--gold-dim);
+      margin: 0;
+    }
+    .programme-list li {
+      position: relative;
+      padding: 14px 0 14px 18px;
+    }
+    .programme-list li::before {
+      content: '';
+      position: absolute;
+      left: -30px;
+      top: 20px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+    .programme-list .time {
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      color: var(--gold);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .programme-list .activity {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    .programme-list li.sub {
+      padding: 6px 0 6px 18px;
+      margin-left: 4px;
+      border-left: 1px dashed var(--gold-dim);
+    }
+    .programme-list li.sub::before { display: none; }
+    .programme-list li.sub .activity {
+      font-size: 0.9rem;
+      font-style: italic;
+      color: var(--text-muted);
+      font-family: var(--font-body);
+      font-weight: 400;
+    }
+
+    /* ══════════════════════════════════════
+       EULOGY
+       ══════════════════════════════════════ */
+    .eulogy-text {
+      font-size: 1.02rem;
+      color: var(--text-body);
+      margin-bottom: 22px;
+      line-height: 1.9;
+      font-weight: 400;
+    }
+    .eulogy-text:last-of-type { margin-bottom: 0; }
+    .eulogy-text strong { color: var(--text-primary); font-weight: 600; }
+
+    .rest-in-peace {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .rest-in-peace p {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--gold-light);
+      line-height: 1.8;
+      max-width: 520px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
+    /* ══════════════════════════════════════
+       CANDLE WALL
+       ══════════════════════════════════════ */
+    .candle-intro {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--text-body);
+      margin-bottom: 28px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+
+    .candle-form {
+      max-width: 520px;
+      margin: 0 auto 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .candle-form-row { display: flex; gap: 12px; }
+
+    .candle-input,
+    .candle-textarea {
+      width: 100%;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      padding: 12px 16px;
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      line-height: 1.5;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    .candle-input::placeholder,
+    .candle-textarea::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+
+    .candle-input:focus,
+    .candle-textarea:focus {
+      border-color: var(--gold-dim);
+      background: var(--field-focus-bg);
+      outline: none;
+    }
+
+    .candle-textarea { resize: vertical; min-height: 72px; }
+
+    .candle-form-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .candle-form-hint {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3px;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .candle-form-hint.error { color: var(--color-error); }
+
+    .candle-returning-note {
+      max-width: 520px;
+      margin: 0 auto 36px;
+      padding: 16px 20px;
+      text-align: center;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--text-body);
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+    }
+
+    .candle-wall {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+      align-items: stretch;
+      gap: 18px 16px;
+      margin-top: 8px;
+      padding-top: 44px;
+      border-top: 1px solid var(--border);
+      min-height: 100px;
+    }
+
+    /* One shared wash of warm light across the whole wall, instead of a
+       halo repeated behind every single candle — reads as a dim room lit
+       by many candles together rather than a grid of individually glowing
+       icons, and each flame's own drop-shadow stays crisp on top of it. */
+    .candle-wall::before {
+      content: '';
+      position: absolute;
+      inset: 0 -6% 55% -6%;
+      pointer-events: none;
+      z-index: 0;
+      background-image: radial-gradient(
+        ellipse 70% 100% at 50% 0%,
+        rgba(20, 14, 6, 0.07) 0%,
+        transparent 70%
+      );
+    }
+
+    [data-theme="dark"] .candle-wall::before {
+      background-image: radial-gradient(
+        ellipse 70% 100% at 50% 0%,
+        rgba(224, 160, 90, 0.16) 0%,
+        transparent 70%
+      );
+    }
+
+    .candle-wall-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-style: italic;
+      font-family: var(--font-heading);
+      padding: 24px 0;
+      letter-spacing: 0.5px;
+    }
+    .candle-wall-empty.is-error { color: var(--color-error); }
+
+    .candle-retry {
+      grid-column: 1 / -1;
+      margin: 14px auto 0;
+      font-size: 0.7rem;
+      padding: 9px 16px;
+    }
+
+    .candle-load-more {
+      grid-column: 1 / -1;
+      display: block;
+      margin: 20px auto 0;
+      font-size: 0.72rem;
+      padding: 10px 20px;
+    }
+
+    @keyframes candleAppear {
+      from { opacity: 0; transform: translateY(10px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+       .candle-entry {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 6px 10px;
+      text-align: center;
+      animation: candleAppear 0.6s ease;
+      border-radius: 8px;
+      transition: background-color 0.4s ease;
+      height: 100%;
+    }
+
+    .candle-entry::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 34px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .candle-entry-svg {
+      width: 22px;
+      height: 64px;
+      flex-shrink: 0;
+    }
+
+    /* Atmospheric glow: a small warm inner bloom right at the flame, plus
+       a much wider, very faint outer falloff that dissolves into the
+       background — flame → warm inner glow → subtle outer glow → page —
+       rather than one visibly-orange halo ring. Scoped to the flame group
+       only, so the wax body, wick, and base shadow stay crisp. */
+    .candle-entry-svg .flame-glow {
+      filter:
+        drop-shadow(0 0 2px rgba(255, 189, 122, 0.35))
+        drop-shadow(0 0 9px rgba(255, 189, 122, 0.10));
+    }
+
+    [data-theme="dark"] .candle-entry-svg .flame-glow {
+      filter:
+        drop-shadow(0 0 2px rgba(255, 189, 122, 0.42))
+        drop-shadow(0 0 10px rgba(255, 189, 122, 0.15));
+    }
+
+    @keyframes flameFlicker {
+      0%, 100% { opacity: 0.9; transform: scale(1) rotate(0deg); }
+      25%      { opacity: 0.75; transform: scale(0.97) rotate(-1deg); }
+      50%      { opacity: 1;    transform: scale(1.02) rotate(1deg); }
+      75%      { opacity: 0.8;  transform: scale(0.98) rotate(-0.5deg); }
+    }
+
+    .candle-entry-svg .flame-glow {
+      animation: flameFlicker 2.5s ease-in-out infinite;
+      transform-origin: 10px 22px;
+    }
+
+    @keyframes entryHighlight {
+      from { background-color: rgba(255, 176, 58, 0.16); }
+      to   { background-color: transparent; }
+    }
+
+    .candle-entry.is-new { animation: candleAppear 0.6s ease, entryHighlight 2.6s ease-out; }
+    .candle-entry.is-mine { animation: entryHighlight 3.2s ease-out; }
+
+    /* The toggle (or body) wraps the whole visual unit so the entire candle
+       is tappable. Message candles are buttons; blank candles are plain divs
+       so screen readers don't announce a phantom button. */
+    .candle-entry-toggle,
+    .candle-entry-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+      background: none;
+      border: none;
+      font: inherit;
+      color: inherit;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+    }
+
+    .candle-entry-toggle {
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Only truncated entries respond to hover — short messages don't. */
+    .candle-entry-toggle[data-truncated="true"]:hover .candle-entry-name,
+    .candle-entry-toggle[data-truncated="true"]:focus-visible .candle-entry-name {
+      color: var(--gold);
+    }
+
+    .candle-entry-name {
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 0.92rem;
+      color: var(--gold-light);
+      line-height: 1.2;
+      font-weight: 500;
+      transition: color 0.25s ease;
+    }
+
+    /* Snippet = the message itself. Clamped to two lines with ellipsis;
+       expanded entries drop the clamp via [aria-expanded="true"]. */
+    .candle-entry-snippet {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-body);
+      line-height: 1.45;
+      letter-spacing: 0.1px;
+      margin-top: 2px;
+      max-width: 100%;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      text-wrap: pretty;
+    }
+
+    .candle-entry-toggle[aria-expanded="true"] .candle-entry-snippet {
+      display: block;
+      -webkit-line-clamp: unset;
+      line-clamp: unset;
+      -webkit-box-orient: initial;
+      overflow: visible;
+    }
+
+    .candle-entry-time {
+      font-size: 0.6rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    .candle-count-summary {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin: 20px 0 4px;
+      text-transform: uppercase;
+    }
+
+    .candle-print-list { display: none; }
+
+    /* ── Privacy note ── */
+    .privacy-note {
+      max-width: 520px;
+      margin: 28px auto 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .privacy-note summary {
+      cursor: pointer;
+      color: var(--gold);
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      padding: 6px 0;
+      list-style: none;
+    }
+
+    .privacy-note summary::-webkit-details-marker { display: none; }
+    .privacy-note summary::after {
+      content: ' ▾';
+      font-size: 0.7em;
+      transition: transform 0.2s ease;
+      display: inline-block;
+    }
+    .privacy-note[open] summary::after { transform: rotate(180deg); }
+
+    .privacy-note p {
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* ══════════════════════════════════════
+       GALLERY
+       ══════════════════════════════════════ */
+    .gallery-note {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: -24px;
+      margin-bottom: 32px;
+      font-family: var(--font-heading);
+      letter-spacing: 0.3px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border-radius: 2px;
+      cursor: pointer;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card-alt);
+      transition: transform 0.4s ease, border-color 0.4s ease;
+    }
+    .gallery-item:hover { transform: scale(1.02); border-color: var(--gold-dim); }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 20%;
+      transition: transform 0.6s ease, filter 0.4s ease;
+      filter: grayscale(0.15) brightness(0.92);
+    }
+    .gallery-item:hover img { transform: scale(1.06); filter: grayscale(0) brightness(1); }
+
+    .gallery-zoom {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(20, 17, 13, 0.75);
+      border: 1px solid rgba(227, 173, 110, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #E3AD6E;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+    .gallery-item:hover .gallery-zoom,
+    .gallery-item:focus-visible .gallery-zoom { opacity: 1; }
+
+    .gallery-caption {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 20px 12px 10px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+      color: #E3AD6E;
+      font-size: 0.75rem;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      font-family: var(--font-heading);
+      font-style: italic;
+      line-height: 1.3;
+    }
+    .gallery-item:hover .gallery-caption { opacity: 1; }
+
+    /* ══════════════════════════════════════
+       ACKNOWLEDGEMENT
+       ══════════════════════════════════════ */
+    .acknowledgement-text {
+      font-size: 1.05rem;
+      color: var(--text-body);
+      line-height: 1.95;
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
+    .acknowledgement-text strong { color: var(--text-primary); font-weight: 600; }
+
+    .family-signature {
+      text-align: center;
+      font-family: var(--font-heading);
+      font-style: italic;
+      font-size: 1.3rem;
+      color: var(--gold-light);
+      margin-top: 40px;
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ══════════════════════════════════════
+       FOOTER SHARE
+       ══════════════════════════════════════ */
+    .footer-share {
+      text-align: center;
+      padding: 48px 24px 72px;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .footer-share-label {
+      font-size: 0.78rem;
+      letter-spacing: 3.2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .footer-share-label::before,
+    .footer-share-label::after {
+      content: '';
+      width: 28px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim));
+    }
+
+    .footer-share-label::after {
+      background: linear-gradient(90deg, var(--gold-dim), transparent);
+    }
+
+    .footer-share-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ══════════════════════════════════════
+       BACK TO TOP
+       ══════════════════════════════════════ */
+    .back-to-top {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--fab-bg);
+      border: none;
+      color: var(--fab-icon);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease, background 0.3s ease, color 0.3s ease;
+      z-index: 90;
+      backdrop-filter: blur(8px);
+      font-family: var(--font-body);
+      padding: 0;
+    }
+
+    .back-to-top.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .back-to-top-ring {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+      pointer-events: none;
+    }
+
+    .back-to-top-ring-bg {
+      fill: none;
+      stroke: var(--fab-ring-track);
+      stroke-width: 2;
+    }
+
+    .back-to-top-ring-fill {
+      fill: none;
+      stroke: var(--fab-ring-fill);
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.12s linear;
+      filter: drop-shadow(0 0 4px rgba(138, 90, 40, 0.5));
+    }
+
+    .back-to-top-arrow {
+      font-size: 1.15rem;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s ease;
+    }
+
+    .back-to-top:hover { background: var(--fab-bg-hover); color: var(--fab-icon-hover); }
+    .back-to-top:hover .back-to-top-arrow { transform: translateY(-2px); }
+
+    .back-to-top.complete .back-to-top-ring-fill {
+      stroke: var(--gold-light);
+      filter: drop-shadow(0 0 8px rgba(138, 90, 40, 0.7));
+    }
+
+    /* ══════════════════════════════════════
+       LIGHTBOX
+       ══════════════════════════════════════ */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 7, 11, 0.96);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .lightbox.open { display: flex; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .lightbox-content {
+      max-width: 90vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+    .lightbox-caption {
+      font-family: var(--font-heading);
+      font-style: italic;
+      color: #E3AD6E;
+      font-size: 1.05rem;
+      text-align: center;
+    }
+    .lightbox-counter {
+      position: absolute;
+      top: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: rgba(20, 17, 13, 0.7);
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .lightbox-hint {
+      font-size: 0.85rem;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: -8px;
+      opacity: 0.75;
+    }
+
+    .lightbox-close,
+    .lightbox-nav {
+      position: absolute;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: #E3AD6E;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-close { top: 24px; right: 28px; }
+    .lightbox-nav { top: 50%; transform: translateY(-50%); }
+    .lightbox-prev { left: 24px; }
+    .lightbox-next { right: 24px; }
+    .lightbox-close:hover,
+    .lightbox-nav:hover {
+      background: #BD7A3E;
+      color: #14110D;
+      border-color: #BD7A3E;
+    }
+
+    /* ══════════════════════════════════════
+       RESPONSIVE
+       ══════════════════════════════════════ */
+    @media (max-width: 720px) {
+      .section-card { padding: 36px 22px; margin: 24px 0; }
+      .hero { padding: 56px 20px 60px; }
+      .hero-portrait-frame { width: 220px; }
+      .hero-service-text { font-size: 0.9rem; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+      .gallery-caption {
+        opacity: 1;
+        font-size: 0.8rem;
+        padding: 16px 8px 8px;
+        background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
+      }
+      .gallery-zoom { opacity: 1; width: 24px; height: 24px; font-size: 0.75rem; top: 8px; right: 8px; }
+
+      .nav-bar {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x proximity;
+        padding: 0 44px 0 12px;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 20px, #000 calc(100% - 20px), transparent);
+      }
+      .nav-bar::-webkit-scrollbar { display: none; }
+      .nav-bar a { scroll-snap-align: start; padding: 14px 12px; font-size: 0.85rem; gap: 5px; }
+      .nav-bar a::before { display: none; }
+
+      .nav-bar { animation: navHint 1.1s ease-out 0.8s 1; }
+      @keyframes navHint {
+        0%, 100% { transform: translateX(0); }
+        45% { transform: translateX(-22px); }
+      }
+
+      .table-scroll { display: none; }
+      .programme-list { display: block; }
+
+      .back-to-top { bottom: 20px; right: 20px; width: 46px; height: 46px; }
+      .back-to-top-arrow { font-size: 1rem; }
+
+      .candle-form-row { flex-direction: column; gap: 10px; }
+      .candle-form-footer { flex-direction: column; align-items: stretch; }
+      .candle-form-footer .btn-pill { justify-content: center; }
+      .candle-wall { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 14px 10px; }
+
+      .btn-pill { padding: 11px 18px; font-size: 0.72rem; letter-spacing: 1.2px; }
+      .hero-actions { gap: 10px; }
+
+      .share-toast { bottom: 132px; font-size: 0.72rem; padding: 10px 18px; max-width: calc(100% - 40px); }
+    }
+
+    /* ══════════════════════════════════════
+       TOUCH DEVICE — disable sticky hover
+       ══════════════════════════════════════ */
+    @media (hover: none) {
+      .btn-pill:hover {
+        color: var(--gold-light);
+        background: transparent;
+        border-color: var(--gold-dim);
+      }
+      .btn-pill.btn-pill-ghost:hover {
+        color: var(--text-body);
+        border-color: var(--border-subtle);
+        background: transparent;
+      }
+      .btn-pill.btn-pill-primary:hover {
+        color: var(--bg-deep);
+        background: var(--gold-light);
+        border-color: var(--gold-light);
+      }
+      .btn-pill.btn-pill-quiet:hover {
+        color: var(--text-muted);
+        border-color: transparent;
+        background: transparent;
+      }
+      .gallery-item:hover { transform: none; border-color: var(--border-subtle); }
+      .gallery-item:hover img { transform: none; filter: grayscale(0.15) brightness(0.92); }
+      .gallery-item:hover .gallery-zoom { opacity: 0; }
+      .gallery-item:hover .gallery-caption { opacity: 0; }
+      .theme-toggle:hover { background: var(--fab-bg); color: var(--fab-icon); transform: none; }
+      .back-to-top:hover { background: var(--fab-bg); color: var(--fab-icon); }
+      .back-to-top:hover .back-to-top-arrow { transform: none; }
+      .nav-bar a:hover { color: var(--text-muted); }
+      .nav-bar a:hover::before { opacity: 0; }
+      .nav-bar a:hover::after { transform: translateX(-50%) scaleX(0); }
+    }
+
+    /* ══════════════════════════════════════
+       REDUCED MOTION
+       ══════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+
+      .petal { display: none; }
+      .nav-bar { animation: none; }
+
+      .section-card { opacity: 1; transform: none; transition: none; }
+      .candle-entry { animation: none; }
+      .lightbox.open { animation: none; }
+
+      .candle-entry-svg .flame-glow {
+        animation: none;
+      }
+
+      .candle-entry.is-new,
+      .candle-entry.is-mine {
+        animation: none;
+        background-color: rgba(255, 176, 58, 0.16);
+      }
+      .btn-pill.is-lighting { animation: none; }
+
+      .btn-pill, .back-to-top, .theme-toggle, .gallery-item, .gallery-item img,
+      .nav-bar a, .nav-bar a::after, .nav-bar a::before,
+      .candle-input, .candle-textarea {
+        transition: none;
+      }
+
+      .gallery-item:hover { transform: none; }
+      .gallery-item:hover img { transform: none; }
+      .back-to-top:hover .back-to-top-arrow { transform: none; }
+    }
+
+    /* ══════════════════════════════════════
+       PRINT STYLES
+       ══════════════════════════════════════ */
+    @media print {
+      :root {
+        --bg-deep: #fff; --bg-hero: #fff; --bg-card: #fff; --bg-card-alt: #f6f6f6;
+        --gold: #7a5f1e; --gold-light: #5c481a; --text-primary: #1a1a1a; --text-body: #2b2b2b;
+        --text-muted: #555; --border: #ccc; --border-subtle: #ddd;
+      }
+      .skip-link, .petals, .nav-bar-wrapper, .lightbox,
+      .hero-actions,
+      .back-to-top, .theme-toggle, .footer-share, .share-toast,
+      .candle-form, .candle-wall, .candle-count-summary,
+      .candle-load-more, .privacy-note, .gallery-note { display: none !important; }
+
+      .table-scroll { display: block !important; }
+      .programme-list { display: none !important; }
+
+      .candle-print-list {
+        display: block !important;
+        margin-top: 24px;
+        page-break-before: always;
+      }
+      .candle-print-list h3 {
+        font-family: var(--font-heading);
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        color: #4a3a22;
+      }
+      .candle-print-list ul { list-style: none; }
+      .candle-print-list li {
+        padding: 6px 0;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.9rem;
+      }
+      .candle-print-list li strong { color: #1a1a1a; }
+
+      body, .hero, .section-card { background: #fff !important; color: #000 !important; box-shadow: none !important; }
+      .section-card {
+        page-break-inside: avoid;
+        border: 1px solid #ccc;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      .hero-name { color: #1a1a1a !important; text-shadow: none !important; }
+      .hero-eyebrow, .hero-service-text { color: #4a3a22 !important; }
+
+      .hero-layout { display: block !important; text-align: center !important; }
+      .hero-content { align-items: center !important; max-width: none !important; margin: 0 auto; }
+      .hero-portrait-frame { margin: 0 auto; }
+      .hero-portrait-frame::before,
+      .hero-portrait-frame::after { border-color: #ccc !important; }
+      .hero-portrait-img { box-shadow: none !important; filter: none !important; }
+      .hero-monogram { background: #f0f0f0 !important; color: #7a5f1e !important; }
+    }
+  </style>
 </head>
 <body>
 
@@ -429,8 +2108,1025 @@
     </div>
   </div>
 
-  <script src="firebase-config.js"></script>
-  <script type="module" src="script.js"></script>
+  <script>
+/* ══════════════════════════════════════
+   FIREBASE CONFIG — fill this in with YOUR project's values
+   ══════════════════════════════════════
+
+   Where to get these values:
+   1. Go to https://console.firebase.google.com and create a free project
+      (name it anything, e.g. "rael-memorial").
+   2. In the project, click the "</>" (web app) icon to register a web app.
+      No hosting setup needed — you're just grabbing the config object.
+   3. Firebase will show you an object exactly like the one below.
+      Copy your real values into it here.
+   4. In the left sidebar, go to Build → Firestore Database → Create database.
+      Choose "Start in production mode" (the security rules below handle
+      access control, so this is safe) and pick any region.
+   5. Once created, go to the "Rules" tab of Firestore and paste in:
+
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /candles/{candleId} {
+              allow read: if true;
+              allow create: if
+                request.resource.data.name is string &&
+                request.resource.data.name.size() > 0 &&
+                request.resource.data.name.size() <= 40 &&
+                (!('message' in request.resource.data) ||
+                  (request.resource.data.message is string &&
+                   request.resource.data.message.size() <= 140)) &&
+                request.resource.data.timestamp == request.time;
+              allow update, delete: if false;
+            }
+          }
+        }
+
+      This lets anyone read the wall and add a candle, but nobody
+      (including a technically-savvy visitor poking at devtools) can
+      edit or delete an entry. To remove an inappropriate entry, go to
+      Firestore Database → Data → candles collection, and delete that
+      document manually. That's the entire moderation workflow.
+
+   That's it — no server, no ongoing cost at this scale (Firestore's free
+   tier is ~50,000 reads and ~20,000 writes per day).
+*/
+
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBX91w15QnO1RxoAyFZJvkg7e-ItfZ_BY8",
+  authDomain: "raelmemorial.firebaseapp.com",
+  projectId: "raelmemorial",
+  storageBucket: "raelmemorial.firebasestorage.app",
+  messagingSenderId: "184293068283",
+  appId: "1:184293068283:web:8ba22ddaeabc70f8fa8f5e"
+};
+  </script>
+  <script type="module">
+/* ══════════════════════════════════════
+   MODULAR FIREBASE IMPORTS
+   ══════════════════════════════════════ */
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  getCountFromServer
+} from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
+import {
+  initializeAppCheck,
+  ReCaptchaV3Provider
+} from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app-check.js';
+
+/* ══════════════════════════════════════
+   CONFIG
+   ══════════════════════════════════════ */
+const RECAPTCHA_SITE_KEY = '6Le2v7otAAAAADWcrqSoPo1tHX3b5KRQ0EgEB7Bi';
+const CANDLES_COLLECTION = 'candles';
+const CANDLES_PAGE_SIZE = 48;
+const SERVICE_END = new Date('2026-09-19T13:00:00+03:00');
+
+/* ══════════════════════════════════════
+   THEME TOGGLE
+   (theme is applied by the inline <head> script; this just wires the button)
+   ══════════════════════════════════════ */
+(function themeToggle() {
+  const toggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  const themeColorMeta = document.getElementById('themeColorMeta');
+  if (!toggle) return;
+
+  const LIGHT_THEME_COLOR = '#FAF6EF';
+  const DARK_THEME_COLOR = '#14110D';
+
+  function applyLabel(theme) {
+    const isDark = theme === 'dark';
+    toggle.setAttribute('aria-pressed', String(isDark));
+    toggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute('content', isDark ? DARK_THEME_COLOR : LIGHT_THEME_COLOR);
+    }
+  }
+
+  applyLabel(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+  toggle.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    applyLabel(next);
+    try { localStorage.setItem('rael-theme', next); } catch (e) {}
+  });
+})();
+
+/* ══════════════════════════════════════
+   RISING EMBERS
+   ══════════════════════════════════════ */
+function createEmbers() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.innerWidth < 680) return;
+  const container = document.getElementById('petals');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const count = 16;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.animationDuration = (10 + Math.random() * 14) + 's';
+    p.style.animationDelay = (Math.random() * 16) + 's';
+    const size = 3 + Math.random() * 5;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    container.appendChild(p);
+  }
+}
+createEmbers();
+
+let petalResizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(petalResizeTimer);
+  petalResizeTimer = setTimeout(createEmbers, 300);
+}, { passive: true });
+
+/* ══════════════════════════════════════
+   SCROLL: PROGRESS, RING, BACK-TO-TOP
+   ══════════════════════════════════════ */
+(function scrollHandlers() {
+  const progressBar = document.getElementById('progressBar');
+  const backToTop = document.getElementById('backToTop');
+  const scrollRing = document.getElementById('scrollRing');
+
+  const RING_RADIUS = 23;
+  const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+  if (scrollRing) {
+    scrollRing.style.strokeDasharray = RING_CIRCUMFERENCE;
+    scrollRing.style.strokeDashoffset = RING_CIRCUMFERENCE;
+  }
+
+  let ticking = false;
+
+  function update() {
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const progress = height > 0 ? Math.min(winScroll / height, 1) : 0;
+
+    progressBar.style.width = (progress * 100) + '%';
+
+    if (scrollRing) {
+      scrollRing.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
+    }
+
+    backToTop.classList.toggle('visible', winScroll > 400);
+    backToTop.classList.toggle('complete', progress > 0.985);
+
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) { window.requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
+
+  window.addEventListener('resize', update, { passive: true });
+  update();
+})();
+
+(function revealSections() {
+  const sections = document.querySelectorAll('.section-card');
+  if (!('IntersectionObserver' in window)) {
+    sections.forEach(s => s.classList.add('visible'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  sections.forEach(s => io.observe(s));
+})();
+
+(function highlightNav() {
+  const links = Array.from(document.querySelectorAll('.nav-bar a'));
+  const sections = links
+    .map(l => document.querySelector(l.getAttribute('href')))
+    .filter(Boolean);
+  if (!('IntersectionObserver' in window) || !sections.length) return;
+
+  const visible = new Set();
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) visible.add(e.target.id);
+      else visible.delete(e.target.id);
+    });
+
+    links.forEach(l => l.removeAttribute('aria-current'));
+    if (!visible.size) return;
+
+    const firstId = sections.find(s => visible.has(s.id))?.id;
+    const link = links.find(l => l.getAttribute('href') === '#' + firstId);
+    if (link) link.setAttribute('aria-current', 'location');
+  }, { threshold: 0.2, rootMargin: '-20% 0px -50% 0px' });
+
+  sections.forEach(s => io.observe(s));
+})();
+
+(function buildProgrammeList() {
+  const list = document.getElementById('programmeList');
+  if (!list) return;
+  const rows = document.querySelectorAll('.programme-table tbody tr');
+  rows.forEach(tr => {
+    const timeEl = tr.querySelector('.col-time');
+    const activityEl = tr.querySelector('.col-activity');
+    const time = timeEl ? timeEl.textContent.trim() : '';
+    const activity = activityEl ? activityEl.textContent.trim() : '';
+
+    const li = document.createElement('li');
+    if (tr.classList.contains('sub-row')) li.classList.add('sub');
+
+    if (time) {
+      const t = document.createElement('span');
+      t.className = 'time';
+      t.textContent = time;
+      li.appendChild(t);
+    }
+    const a = document.createElement('span');
+    a.className = 'activity';
+    a.textContent = activity;
+    li.appendChild(a);
+
+    list.appendChild(li);
+  });
+})();
+
+/* ══════════════════════════════════════
+   SHARE
+   ══════════════════════════════════════ */
+function showToast(message) {
+  const toast = document.getElementById('shareToast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), 2400);
+}
+
+async function shareThis() {
+  const shareData = {
+    title: 'In Loving Memory of Rael Ndeve',
+    text: 'A memorial programme celebrating the life of Rael Ndeve.',
+    url: window.location.href
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+  }
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(window.location.href);
+      showToast('Link copied to clipboard');
+    } else if (document.queryCommandSupported && document.queryCommandSupported('copy')) {
+      const ta = document.createElement('textarea');
+      ta.value = window.location.href;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Link copied to clipboard');
+    } else {
+      showToast('Copy this link: ' + window.location.href);
+    }
+  } catch (err) {
+    showToast('Sharing not available on this device');
+  }
+}
+
+/* ══════════════════════════════════════
+   SERVICE-PAST STATE
+   ══════════════════════════════════════ */
+function applyServiceState() {
+  const actions = document.querySelector('.hero-actions');
+  if (!actions) return;
+
+  const forced = new URLSearchParams(location.search).get('after') === '1';
+  const passed = Date.now() > SERVICE_END.getTime();
+  if (!passed && !forced) return;
+
+  document.body.setAttribute('data-service', 'past');
+
+  const prog = actions.querySelector('a[href="#service"]');
+  if (prog) {
+    const candle = document.createElement('a');
+    candle.href = '#tribute';
+    candle.className = 'btn-pill btn-pill-ghost';
+    candle.innerHTML = `
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 3 C 9 8, 9 11, 12 13 C 15 11, 15 8, 12 3 Z"/>
+        <rect x="10" y="14" width="4" height="7" rx="1"/>
+      </svg>
+      Light a candle`;
+    prog.replaceWith(candle);
+  }
+
+  const serviceTime = document.querySelector('.hero-service time');
+  if (serviceTime) {
+    serviceTime.textContent = 'Saturday, September 19, 2026';
+    const label = serviceTime.closest('.hero-service-item');
+    if (label && !label.querySelector('.service-past-note')) {
+      const note = document.createElement('span');
+      note.className = 'service-past-note';
+      note.textContent = 'Service held';
+      label.insertBefore(note, label.firstChild);
+    }
+  }
+}
+applyServiceState();
+
+/* ══════════════════════════════════════
+   CANDLE WALL — shared, real-time (Firebase Firestore, modular SDK)
+   ══════════════════════════════════════ */
+let db = null;
+let firebaseReady = false;
+
+let latestCandles = [];
+let maxSeenTime = 0;
+let hasLoadedOnce = false;
+let unsubscribeCandles = null;
+let candleLimit = CANDLES_PAGE_SIZE;
+let candleTick = null;
+let pendingScrollCandleId = null;
+let expandedMessageIds = new Set(); // which candle messages the visitor has tapped open
+
+// The wall only ever loads `candleLimit` candles at a time (see
+// subscribeToCandles), but the "N candles lit" summary should reflect the
+// true total for the whole memorial, not just what's currently paginated
+// in. getCountFromServer is a lightweight aggregate query — it doesn't fetch
+// the documents themselves, just a count — so this stays cheap even as the
+// wall grows well past one page.
+let totalCandleCount = null;
+
+function updateCandleSummary() {
+  const summary = document.getElementById('candleSummary');
+  if (!summary) return;
+  // Until the aggregate count has loaded (or if it ever fails), fall back
+  // to what's actually rendered so the line is never blank.
+  const total = totalCandleCount !== null ? totalCandleCount : latestCandles.length;
+  summary.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
+}
+
+async function refreshCandleCount() {
+  if (!firebaseReady) return;
+  try {
+    const snap = await getCountFromServer(collection(db, CANDLES_COLLECTION));
+    totalCandleCount = snap.data().count;
+    updateCandleSummary();
+  } catch (e) {
+    console.error('Candle count fetch failed:', e);
+    // Leave totalCandleCount as-is; the summary already has a sensible
+    // fallback via updateCandleSummary().
+  }
+}
+
+/* One candle per browser is now a soft nudge, not a hard gate. It still
+   flags a repeat visit via localStorage (so we can show a friendly note),
+   but it never hides the form or blocks a second submission — a shared
+   device (a family tablet passed around at the service, say) needs to let
+   more than one person light a candle. */
+const CANDLE_LIT_KEY = 'rael-candle-lit';
+
+function hasAlreadyLitCandle() {
+  try { return !!localStorage.getItem(CANDLE_LIT_KEY); } catch (e) { return false; }
+}
+
+function markCandleLit() {
+  try { localStorage.setItem(CANDLE_LIT_KEY, '1'); } catch (e) {}
+}
+
+function showReturningVisitorNote() {
+  if (document.getElementById('candleReturningNote')) return; // already shown
+  const form = document.getElementById('candleForm');
+  if (!form) return;
+
+  const note = document.createElement('p');
+  note.className = 'candle-returning-note';
+  note.id = 'candleReturningNote';
+  note.innerHTML = '🕯️ You\u2019ve lit a candle here before — thank you. Sharing this device with someone else? They\u2019re welcome to light one too.';
+  form.after(note);
+}
+
+try {
+  if (window.FIREBASE_CONFIG) {
+    const app = initializeApp(window.FIREBASE_CONFIG);
+
+    const isLocalHost = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+    if (isLocalHost) {
+      let debugToken = null;
+      try { debugToken = localStorage.getItem('appcheck-debug-token'); } catch (e) {}
+      if (!debugToken) {
+        debugToken = crypto.randomUUID();
+        try { localStorage.setItem('appcheck-debug-token', debugToken); } catch (e) {}
+      }
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
+      console.info('App Check debug token (register once in Firebase Console → App Check → Manage debug tokens):', debugToken);
+    }
+
+    if (RECAPTCHA_SITE_KEY && RECAPTCHA_SITE_KEY.indexOf('PASTE_') !== 0) {
+      try {
+        initializeAppCheck(app, {
+          provider: new ReCaptchaV3Provider(RECAPTCHA_SITE_KEY),
+          isTokenAutoRefreshEnabled: true
+        });
+      } catch (e) {
+        console.warn('App Check init failed (continuing without):', e);
+      }
+    }
+
+    db = getFirestore(app);
+    firebaseReady = true;
+  }
+} catch (e) {
+  console.error('Firebase init failed:', e);
+  firebaseReady = false;
+}
+
+function formatRelativeTime(date) {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return hours + 'h ago';
+  const days = Math.floor(hours / 24);
+  if (days < 30) return days + 'd ago';
+  return Math.floor(days / 30) + 'mo ago';
+}
+
+/* SVG candle: an asymmetric, slightly irregular flame (not a perfect
+   teardrop) with a soft inner highlight for depth, sitting on a slim wax
+   pillar with subtle satin shading, an understated wick, a small melted-wax
+   drip, and a soft radial base shadow (no hard-edged oval). The `.flame-glow`
+   group is what the CSS drop-shadow and flicker animation both target —
+   scoped to just the flame shapes so the wax body and shadow stay crisp. */
+const candleSVG = `
+  <svg class="candle-entry-svg" viewBox="0 0 20 58" aria-hidden="true">
+    <defs>
+      <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%"   stop-color="#A85C28"/>
+        <stop offset="55%"  stop-color="#E4A055"/>
+        <stop offset="100%" stop-color="#FFF6E4"/>
+      </linearGradient>
+      <linearGradient id="flameInner" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%"   stop-color="#F4C077" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#FFF8E8" stop-opacity="0.65"/>
+      </linearGradient>
+      <linearGradient id="waxBody" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#A88F66"/>
+        <stop offset="45%"  stop-color="#EDE0C4"/>
+        <stop offset="100%" stop-color="#9C8055"/>
+      </linearGradient>
+      <radialGradient id="baseShadow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="rgba(20,14,6,0.22)"/>
+        <stop offset="70%"  stop-color="rgba(20,14,6,0.08)"/>
+        <stop offset="100%" stop-color="rgba(20,14,6,0)"/>
+      </radialGradient>
+    </defs>
+    <g class="flame-glow">
+      <path class="flame-outer" fill="url(#flameGrad)"
+            d="M10.8 0
+               C 13.2 5.8, 15.6 10.6, 14.6 16.4
+               C 13.9 20.9, 11.6 24.6, 10.2 24.8
+               C 8.6 25, 6.1 21.2, 5.5 16.2
+               C 5 11, 7.8 6, 10.8 0 Z"/>
+      <path class="flame-core" fill="url(#flameInner)" opacity="0.8"
+            d="M10.3 5
+               C 11.6 8.5, 12.6 11.3, 12.1 14.3
+               C 11.7 16.6, 10.4 18.4, 9.6 18.3
+               C 8.7 18.2, 7.6 16.2, 7.5 13.8
+               C 7.4 11, 9 8, 10.3 5 Z"/>
+    </g>
+    <rect x="9.5" y="25" width="1" height="4" fill="#4A3520"/>
+    <rect x="6.8" y="30" width="6.4" height="24" rx="2.4" fill="url(#waxBody)"/>
+    <rect x="8" y="31" width="1" height="21" rx="0.5" fill="#FFFBEF" opacity="0.16"/>
+    <ellipse cx="10" cy="30.4" rx="3.2" ry="1.1" fill="#F2E4C4" opacity="0.8"/>
+    <path d="M 12.3 31.5 Q 13.1 34.5, 12.3 37 Q 11.6 34.5, 12.3 31.5 Z" fill="#EDDDB8" opacity="0.5"/>
+    <ellipse cx="10" cy="55" rx="7" ry="2" fill="url(#baseShadow)"/>
+  </svg>
+`;
+
+function escapeHTML(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/`/g, '&#96;');
+}
+
+function removeLoadMore() {
+  const existing = document.getElementById('candleLoadMore');
+  if (existing) existing.remove();
+}
+
+function setWallState(state, message, showRetry) {
+  const wall = document.getElementById('candleWall');
+  const summary = document.getElementById('candleSummary');
+  if (!wall) return;
+
+  removeLoadMore();
+  wall.innerHTML = '';
+  const p = document.createElement('p');
+  p.className = 'candle-wall-empty' + (state === 'error' ? ' is-error' : '');
+  p.textContent = message;
+  wall.appendChild(p);
+
+  if (showRetry) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-pill btn-pill-ghost candle-retry';
+    btn.textContent = 'Try again';
+    btn.addEventListener('click', () => {
+      candleLimit = CANDLES_PAGE_SIZE;
+      subscribeToCandles(true);
+    });
+    wall.appendChild(btn);
+  }
+  if (summary) summary.textContent = '';
+}
+
+function renderLoadMore(mayHaveMore) {
+  removeLoadMore();
+  if (!mayHaveMore) return;
+
+  const wall = document.getElementById('candleWall');
+  if (!wall) return;
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'candleLoadMore';
+  btn.className = 'btn-pill btn-pill-ghost candle-load-more';
+  btn.textContent = 'Load older candles';
+  btn.addEventListener('click', () => {
+    candleLimit += CANDLES_PAGE_SIZE;
+    btn.disabled = true;
+    btn.textContent = 'Loading…';
+    subscribeToCandles(false);
+  });
+
+  // Summary now sits above the wall, so anchor the button after the wall itself.
+  wall.after(btn);
+}
+
+/* Decide which message candles are actually truncated. Runs after the wall
+   has been populated and re-runs on resize. Sets data-truncated on the
+   button so the CSS hover cue and the click handler both key off the same
+   flag. Expanded candles are never re-collapsed. */
+function measureCandleSnippets() {
+  document.querySelectorAll('.candle-entry-toggle[data-has-message="true"]').forEach((toggle) => {
+    const snippet = toggle.querySelector('.candle-entry-snippet');
+    if (!snippet) return;
+
+    // A visitor-expanded candle stays expanded regardless of measurement.
+    if (toggle.getAttribute('aria-expanded') === 'true') {
+      toggle.dataset.truncated = 'true';
+      return;
+    }
+
+    // +1 tolerance absorbs sub-pixel rounding on perfect two-line snippets.
+    const truncated = snippet.scrollHeight > snippet.clientHeight + 1;
+    toggle.dataset.truncated = truncated ? 'true' : 'false';
+  });
+}
+
+let snippetResizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(snippetResizeTimer);
+  snippetResizeTimer = setTimeout(measureCandleSnippets, 150);
+}, { passive: true });
+
+function renderCandles(candles) {
+  const wall = document.getElementById('candleWall');
+  const summary = document.getElementById('candleSummary');
+  const printList = document.getElementById('candlePrintList');
+  const status = document.getElementById('candleStatus');
+
+  const previousMaxTime = maxSeenTime;
+  latestCandles = candles;
+  wall.innerHTML = '';
+  if (printList) printList.innerHTML = '';
+
+  if (!candles.length) {
+    setWallState('empty', 'No candles lit yet — be the first to leave a light.', false);
+    return;
+  }
+
+  candles.forEach((candle) => {
+    const t = candle.date.getTime();
+    // Only glow for candles newer than the newest we've previously rendered.
+    // Loading older pages won't trip this because their timestamps are lower.
+    const isNew = hasLoadedOnce && t > previousMaxTime;
+
+    const entry = document.createElement('div');
+    entry.className = 'candle-entry' + (isNew ? ' is-new' : '');
+    entry.dataset.id = candle.id;
+
+    const svgWrap = document.createElement('div');
+    svgWrap.innerHTML = candleSVG;
+    const svg = svgWrap.firstElementChild;
+
+    const name = document.createElement('div');
+    name.className = 'candle-entry-name';
+    name.textContent = candle.name;
+
+    const time = document.createElement('div');
+    time.className = 'candle-entry-time';
+    const timeEl = document.createElement('time');
+    timeEl.dateTime = candle.date.toISOString();
+    timeEl.textContent = formatRelativeTime(candle.date);
+    time.appendChild(timeEl);
+
+    if (candle.message) {
+      // Candles with a message become tap-to-reveal. The snippet is the
+      // message itself, clamped to two lines by CSS; expanding sets
+      // aria-expanded="true" and the clamp is dropped. The button wraps the
+      // flame, name, snippet, and time so the whole tile is a hit target.
+      const isOpen = expandedMessageIds.has(candle.id);
+
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'candle-entry-toggle';
+      toggle.setAttribute('aria-expanded', String(isOpen));
+      toggle.dataset.hasMessage = 'true';
+      toggle.dataset.truncated = 'false'; // measureCandleSnippets will correct this
+
+      const snippet = document.createElement('span');
+      snippet.className = 'candle-entry-snippet';
+      snippet.textContent = '\u201C' + candle.message + '\u201D';
+
+      toggle.append(svg, name, snippet, time);
+
+      toggle.addEventListener('click', () => {
+        // Only truncated messages toggle — short ones stay static text.
+        if (toggle.dataset.truncated !== 'true') return;
+        const nowOpen = toggle.getAttribute('aria-expanded') !== 'true';
+        toggle.setAttribute('aria-expanded', String(nowOpen));
+        if (nowOpen) expandedMessageIds.add(candle.id);
+        else expandedMessageIds.delete(candle.id);
+      });
+
+      entry.appendChild(toggle);
+    } else {
+      // No message — plain, non-interactive entry wrapped in a div so it
+      // doesn't carry button semantics for screen readers.
+      const body = document.createElement('div');
+      body.className = 'candle-entry-body';
+      body.append(svg, name, time);
+      entry.appendChild(body);
+    }
+
+    wall.appendChild(entry);
+
+    if (t > maxSeenTime) maxSeenTime = t;
+  });
+
+  // Drop tracked ids for candles no longer on the wall (keeps the set small
+  // over a long-running session rather than growing forever).
+  const visibleIds = new Set(candles.map(c => c.id));
+  expandedMessageIds.forEach(id => { if (!visibleIds.has(id)) expandedMessageIds.delete(id); });
+
+  // Measure after layout so snippet heights are final. Font loading can
+  // re-flow the wall (Cormorant swaps in late), so we measure again when
+  // fonts.ready resolves.
+  requestAnimationFrame(() => {
+    measureCandleSnippets();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(measureCandleSnippets);
+    }
+  });
+
+  if (hasLoadedOnce && status) {
+    const fresh = candles.filter(c => c.date.getTime() > previousMaxTime);
+    if (fresh.length === 1)      status.textContent = `A new candle was lit by ${fresh[0].name}.`;
+    else if (fresh.length > 1)   status.textContent = `${fresh.length} new candles were lit.`;
+  }
+  hasLoadedOnce = true;
+
+  updateCandleSummary();
+
+  if (printList) {
+    const h3 = document.createElement('h3');
+    h3.textContent = summary.textContent;
+    printList.appendChild(h3);
+    const ul = document.createElement('ul');
+    candles.forEach(c => {
+      const li = document.createElement('li');
+      const strong = document.createElement('strong');
+      strong.textContent = c.name;
+      li.appendChild(strong);
+      if (c.message) li.appendChild(document.createTextNode(' — “' + c.message + '”'));
+      ul.appendChild(li);
+    });
+    printList.appendChild(ul);
+  }
+
+  if (pendingScrollCandleId) {
+    const target = wall.querySelector(`[data-id="${pendingScrollCandleId}"]`);
+    if (target) {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+      target.classList.add('is-mine');
+      setTimeout(() => target.classList.remove('is-mine'), 2400);
+    }
+    pendingScrollCandleId = null;
+  }
+}
+
+function subscribeToCandles(showLoading = true) {
+  if (!firebaseReady) {
+    setWallState('error', 'The candle wall is temporarily unavailable.', false);
+    return;
+  }
+  if (unsubscribeCandles) { unsubscribeCandles(); unsubscribeCandles = null; }
+  if (showLoading) setWallState('loading', 'Loading candles…', false);
+
+  const q = query(
+    collection(db, CANDLES_COLLECTION),
+    orderBy('timestamp', 'desc'),
+    limit(candleLimit)
+  );
+
+  unsubscribeCandles = onSnapshot(
+    q,
+    (snapshot) => {
+      // Firestore can fire an initial event from local cache before the
+      // server responds — on a fresh visit that cache is often empty,
+      // which would otherwise flash "No candles lit yet" for a moment.
+      // Skip it and wait for a snapshot we can trust: either the first
+      // one that isn't from cache, or any snapshot once we've already
+      // shown real data (so genuine "went to zero" cases still render).
+      if (snapshot.metadata.fromCache && snapshot.empty && !hasLoadedOnce) {
+        return;
+      }
+
+      const candles = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || '',
+          message: data.message || '',
+          date: data.timestamp ? data.timestamp.toDate() : new Date()
+        };
+      });
+      renderCandles(candles);
+      renderLoadMore(snapshot.docs.length === candleLimit);
+      refreshCandleCount();
+    },
+    (err) => {
+      console.error('Firestore snapshot error:', err);
+      setWallState('error', 'The candle wall could not be loaded.', true);
+    }
+  );
+}
+subscribeToCandles(true);
+
+if (hasAlreadyLitCandle()) showReturningVisitorNote();
+
+async function submitCandle(event) {
+  event.preventDefault();
+  const nameInput = document.getElementById('candleName');
+  const messageInput = document.getElementById('candleMessage');
+  const hint = document.getElementById('candleHint');
+  const submitBtn = document.getElementById('candleSubmitBtn');
+
+  const name = nameInput.value.trim();
+  const message = messageInput.value.trim();
+
+  if (!name) {
+    hint.textContent = 'Please enter your name to light a candle.';
+    hint.classList.add('error');
+    nameInput.focus();
+    return;
+  }
+  if (name.length > 40) {
+    hint.textContent = 'Name is too long (40 characters max).';
+    hint.classList.add('error');
+    nameInput.focus();
+    return;
+  }
+  if (message.length > 140) {
+    hint.textContent = 'Message is too long (140 characters max).';
+    hint.classList.add('error');
+    messageInput.focus();
+    return;
+  }
+
+  if (!firebaseReady) {
+    hint.textContent = 'The candle wall is temporarily unavailable — please try again shortly.';
+    hint.classList.add('error');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.classList.add('is-lighting');
+  hint.classList.remove('error');
+  hint.textContent = 'Lighting your candle…';
+
+  try {
+    const payload = { name, timestamp: serverTimestamp() };
+    if (message) payload.message = message;
+    const docRef = await addDoc(collection(db, CANDLES_COLLECTION), payload);
+    pendingScrollCandleId = docRef.id;
+
+    nameInput.value = '';
+    messageInput.value = '';
+    hint.textContent = 'Your candle is now lit for everyone to see.';
+    markCandleLit();
+    showReturningVisitorNote();
+  } catch (e) {
+    console.error('Candle submit failed:', e);
+    hint.textContent = 'Something went wrong — please try again.';
+    hint.classList.add('error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.classList.remove('is-lighting');
+  }
+}
+
+// Wire the form's submit event to the handler above. This is what actually
+// makes the "Light a Candle" button (and Enter/requestSubmit) call
+// submitCandle() instead of falling through to the browser's default
+// form submission (a full page reload with the fields tacked onto the URL).
+document.getElementById('candleForm')?.addEventListener('submit', submitCandle);
+
+// Ctrl/Cmd+Enter submits the candle form from the textarea
+document.getElementById('candleForm')?.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+    e.preventDefault();
+    e.currentTarget.requestSubmit();
+  }
+});
+
+// Relative-time ticker, keyed by document id so order changes don't drift
+function startCandleTicker() {
+  if (candleTick) return;
+  candleTick = setInterval(() => {
+    document.querySelectorAll('.candle-entry').forEach((el) => {
+      const c = latestCandles.find(x => x.id === el.dataset.id);
+      const timeEl = el.querySelector('.candle-entry-time time');
+      if (!c || !timeEl) return;
+      timeEl.textContent = formatRelativeTime(c.date);
+    });
+  }, 60000);
+}
+startCandleTicker();
+window.addEventListener('beforeunload', () => { if (candleTick) clearInterval(candleTick); });
+
+/* ══════════════════════════════════════
+   GALLERY & LIGHTBOX
+   ══════════════════════════════════════ */
+const galleryData = {
+  memories: [
+    { src: 'photos/rael-1.jpg', caption: '', focus: 'top' },
+    { src: 'photos/rael-2.jpg', caption: '', focus: 'top' },
+    { src: 'photos/rael-3.jpg', caption: '' },
+    { src: 'photos/rael-4.jpg', caption: 'With family, March 2026' },
+  ]
+};
+
+const allPhotos = galleryData.memories.filter(p => p && p.src);
+
+(function buildGallery() {
+  const section = document.getElementById('gallery');
+  const navLink = document.querySelector('.nav-bar a[href="#gallery"]');
+  const grid = document.querySelector('.gallery-grid');
+
+  if (!allPhotos.length) {
+    section.hidden = true;
+    if (navLink) navLink.hidden = true;
+    return;
+  }
+
+  section.hidden = false;
+  if (navLink) navLink.hidden = false;
+
+  allPhotos.forEach((p, idx) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.setAttribute('aria-label', `View photo: ${p.caption}`);
+    item.innerHTML = `
+      <img src="${p.src}" alt="${escapeHTML(p.caption)}" loading="lazy" style="${p.focus === 'top' ? 'object-position: center 10%;' : ''}">
+      <span class="gallery-zoom" aria-hidden="true">⤢</span>
+      <div class="gallery-caption">${escapeHTML(p.caption)}</div>
+    `;
+    item.addEventListener('click', () => openLightbox(idx));
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(idx); }
+    });
+    grid.appendChild(item);
+  });
+})();
+
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+const lightboxCounter = document.getElementById('lightboxCounter');
+const lightboxPrev = document.getElementById('lightboxPrev');
+const lightboxNext = document.getElementById('lightboxNext');
+let currentPhoto = 0;
+let lastFocusedElement = null;
+
+function updateLightboxContent() {
+  const p = allPhotos[currentPhoto];
+  lightboxImg.src = p.src;
+  lightboxImg.alt = p.caption;
+  lightboxCaption.textContent = p.caption;
+  lightboxCounter.textContent = `Photo ${currentPhoto + 1} of ${allPhotos.length}`;
+  const multi = allPhotos.length > 1;
+  lightboxPrev.hidden = !multi;
+  lightboxNext.hidden = !multi;
+  const hint = document.getElementById('lightboxHint');
+  if (hint) hint.hidden = !multi;
+}
+
+function openLightbox(index) {
+  if (!allPhotos.length) return;
+  currentPhoto = index;
+  lastFocusedElement = document.activeElement;
+  updateLightboxContent();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('lightboxClose').focus();
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+  if (lastFocusedElement) lastFocusedElement.focus();
+}
+
+function navigateLightbox(dir) {
+  if (allPhotos.length < 2) return;
+  currentPhoto = (currentPhoto + dir + allPhotos.length) % allPhotos.length;
+  updateLightboxContent();
+}
+
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+lightboxNext.addEventListener('click', () => navigateLightbox(1));
+
+document.addEventListener('keydown', (e) => {
+  if (!lightbox.classList.contains('open')) return;
+
+  if (e.key === 'Escape')     { closeLightbox(); return; }
+  if (e.key === 'ArrowLeft')  { navigateLightbox(-1); return; }
+  if (e.key === 'ArrowRight') { navigateLightbox(1);  return; }
+
+  if (e.key === 'Tab') {
+    const focusables = Array.from(lightbox.querySelectorAll('button:not([hidden])'));
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last  = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+});
+
+let touchStartX = 0;
+lightbox.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+lightbox.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].screenX;
+  if (touchEndX < touchStartX - 40) navigateLightbox(1);
+  if (touchEndX > touchStartX + 40) navigateLightbox(-1);
+}, { passive: true });
+
+/* ══════════════════════════════════════
+   EXPOSE INLINE-HANDLER FUNCTIONS
+   Module scope is not global, so anything referenced
+   from onclick="" in index.html must be re-exported here.
+   ══════════════════════════════════════ */
+window.shareThis = shareThis;
+  </script>
 
 </body>
 </html>

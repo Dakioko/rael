@@ -909,7 +909,7 @@
 
     .candle-form-hint.error { color: var(--color-error); }
 
-    .candle-already-lit {
+    .candle-returning-note {
       max-width: 520px;
       margin: 0 auto 36px;
       padding: 16px 20px;
@@ -923,14 +923,40 @@
     }
 
     .candle-wall {
+      position: relative;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
       align-items: stretch;
       gap: 18px 16px;
       margin-top: 8px;
-      padding-top: 28px;
+      padding-top: 44px;
       border-top: 1px solid var(--border);
       min-height: 100px;
+    }
+
+    /* One shared wash of warm light across the whole wall, instead of a
+       halo repeated behind every single candle — reads as a dim room lit
+       by many candles together rather than a grid of individually glowing
+       icons, and each flame's own drop-shadow stays crisp on top of it. */
+    .candle-wall::before {
+      content: '';
+      position: absolute;
+      inset: 0 -6% 55% -6%;
+      pointer-events: none;
+      z-index: 0;
+      background-image: radial-gradient(
+        ellipse 70% 100% at 50% 0%,
+        rgba(20, 14, 6, 0.07) 0%,
+        transparent 70%
+      );
+    }
+
+    [data-theme="dark"] .candle-wall::before {
+      background-image: radial-gradient(
+        ellipse 70% 100% at 50% 0%,
+        rgba(224, 160, 90, 0.16) 0%,
+        transparent 70%
+      );
     }
 
     .candle-wall-empty {
@@ -967,6 +993,7 @@
 
        .candle-entry {
       position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -977,42 +1004,6 @@
       border-radius: 8px;
       transition: background-color 0.4s ease;
       height: 100%;
-    }
-    .candle-entry:has(.candle-entry-toggle[aria-expanded="true"])::before {
-      opacity: 0;
-    }
-    /* Ambient backdrop behind each candle. In light mode this reads as a
-       soft shadow pocket the flame sits inside; in dark mode it becomes a
-       warm halo. Same geometry, inverted palette. */
-    .candle-entry::before {
-      content: '';
-      position: absolute;
-      inset: -6px -4px 4px;
-      border-radius: 10px;
-      pointer-events: none;
-      z-index: 0;
-      background-image: radial-gradient(
-        ellipse 72% 58% at 50% 32%,
-        rgba(20, 14, 6, 0.09) 0%,
-        rgba(20, 14, 6, 0.03) 45%,
-        transparent 75%
-      );
-      transition: opacity 0.4s ease;
-    }
-
-    [data-theme="dark"] .candle-entry::before {
-      background-image: radial-gradient(
-        ellipse 72% 58% at 50% 32%,
-        rgba(255, 176, 58, 0.16) 0%,
-        rgba(255, 176, 58, 0.05) 45%,
-        transparent 75%
-      );
-    }
-
-    /* Keep the candle's own contents above the vignette layer. */
-    .candle-entry > * {
-      position: relative;
-      z-index: 1;
     }
 
     .candle-entry::after {
@@ -1026,21 +1017,27 @@
       background: linear-gradient(90deg, transparent, var(--border), transparent);
     }
 
-        .candle-entry-svg {
-      width: var(--flame-size, 30px);
-      height: calc(var(--flame-size, 30px) * 1.47);
+    .candle-entry-svg {
+      width: 22px;
+      height: 64px;
       flex-shrink: 0;
     }
 
-    /* Glow now scoped to the flame shapes only — the wax body, wick, and
-       base shadow stay crisp instead of picking up a blurred orange
-       duplicate of their own silhouette. */
+    /* Atmospheric glow: a small warm inner bloom right at the flame, plus
+       a much wider, very faint outer falloff that dissolves into the
+       background — flame → warm inner glow → subtle outer glow → page —
+       rather than one visibly-orange halo ring. Scoped to the flame group
+       only, so the wax body, wick, and base shadow stay crisp. */
     .candle-entry-svg .flame-glow {
-      filter: drop-shadow(0 0 3px rgba(255, 176, 58, 0.6));
+      filter:
+        drop-shadow(0 0 2px rgba(255, 189, 122, 0.35))
+        drop-shadow(0 0 9px rgba(255, 189, 122, 0.10));
     }
 
     [data-theme="dark"] .candle-entry-svg .flame-glow {
-      filter: drop-shadow(0 0 3px rgba(255, 176, 58, 0.45));
+      filter:
+        drop-shadow(0 0 2px rgba(255, 189, 122, 0.42))
+        drop-shadow(0 0 10px rgba(255, 189, 122, 0.15));
     }
 
     @keyframes flameFlicker {
@@ -1050,10 +1047,9 @@
       75%      { opacity: 0.8;  transform: scale(0.98) rotate(-0.5deg); }
     }
 
-    .candle-entry-svg .flame-outer,
-    .candle-entry-svg .flame-inner {
+    .candle-entry-svg .flame-glow {
       animation: flameFlicker 2.5s ease-in-out infinite;
-      transform-origin: 20px 24px;
+      transform-origin: 10px 22px;
     }
 
     @keyframes entryHighlight {
@@ -1603,8 +1599,7 @@
       .candle-entry { animation: none; }
       .lightbox.open { animation: none; }
 
-      .candle-entry-svg .flame-outer,
-      .candle-entry-svg .flame-inner {
+      .candle-entry-svg .flame-glow {
         animation: none;
       }
 

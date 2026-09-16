@@ -10,7 +10,8 @@ import {
   limit,
   onSnapshot,
   addDoc,
-  serverTimestamp
+  serverTimestamp,
+  getCountFromServer
 } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js';
 import {
   initializeAppCheck,
@@ -307,10 +308,41 @@ let candleTick = null;
 let pendingScrollCandleId = null;
 let expandedMessageIds = new Set(); // which candle messages the visitor has tapped open
 
-/* One candle per browser. This is a courtesy limit, not real security — it
-   stops accidental double-posts and casual repeat visits, and resets if the
-   visitor clears storage, uses another browser, or goes incognito. That
-   trade-off is intentional: no login, no fingerprinting, just localStorage. */
+// The wall only ever loads `candleLimit` candles at a time (see
+// subscribeToCandles), but the "N candles lit" summary should reflect the
+// true total for the whole memorial, not just what's currently paginated
+// in. getCountFromServer is a lightweight aggregate query — it doesn't fetch
+// the documents themselves, just a count — so this stays cheap even as the
+// wall grows well past one page.
+let totalCandleCount = null;
+
+function updateCandleSummary() {
+  const summary = document.getElementById('candleSummary');
+  if (!summary) return;
+  // Until the aggregate count has loaded (or if it ever fails), fall back
+  // to what's actually rendered so the line is never blank.
+  const total = totalCandleCount !== null ? totalCandleCount : latestCandles.length;
+  summary.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
+}
+
+async function refreshCandleCount() {
+  if (!firebaseReady) return;
+  try {
+    const snap = await getCountFromServer(collection(db, CANDLES_COLLECTION));
+    totalCandleCount = snap.data().count;
+    updateCandleSummary();
+  } catch (e) {
+    console.error('Candle count fetch failed:', e);
+    // Leave totalCandleCount as-is; the summary already has a sensible
+    // fallback via updateCandleSummary().
+  }
+}
+
+/* One candle per browser is now a soft nudge, not a hard gate. It still
+   flags a repeat visit via localStorage (so we can show a friendly note),
+   but it never hides the form or blocks a second submission — a shared
+   device (a family tablet passed around at the service, say) needs to let
+   more than one person light a candle. */
 const CANDLE_LIT_KEY = 'rael-candle-lit';
 
 function hasAlreadyLitCandle() {
@@ -321,15 +353,15 @@ function markCandleLit() {
   try { localStorage.setItem(CANDLE_LIT_KEY, '1'); } catch (e) {}
 }
 
-function showAlreadyLitState() {
+function showReturningVisitorNote() {
+  if (document.getElementById('candleReturningNote')) return; // already shown
   const form = document.getElementById('candleForm');
-  if (!form || form.hidden) return;
-  form.hidden = true;
+  if (!form) return;
 
   const note = document.createElement('p');
-  note.className = 'candle-already-lit';
-  note.id = 'candleAlreadyLit';
-  note.innerHTML = '🕯️ You\u2019ve already lit a candle here — thank you for remembering Rael.';
+  note.className = 'candle-returning-note';
+  note.id = 'candleReturningNote';
+  note.innerHTML = '🕯️ You\u2019ve lit a candle here before — thank you. Sharing this device with someone else? They\u2019re welcome to light one too.';
   form.after(note);
 }
 
@@ -380,55 +412,57 @@ function formatRelativeTime(date) {
   return Math.floor(days / 30) + 'mo ago';
 }
 
-/* SVG candle: teardrop outer flame, inner core, candle body with a soft
-   radial glow behind the flame. The `.flame-outer` / `.flame-inner` classes
-   are the hook for the flicker animation, replacing brittle path[fill=…]
-   selectors. */
+/* SVG candle: an asymmetric, slightly irregular flame (not a perfect
+   teardrop) with a soft inner highlight for depth, sitting on a slim wax
+   pillar with subtle satin shading, an understated wick, a small melted-wax
+   drip, and a soft radial base shadow (no hard-edged oval). The `.flame-glow`
+   group is what the CSS drop-shadow and flicker animation both target —
+   scoped to just the flame shapes so the wax body and shadow stay crisp. */
 const candleSVG = `
-  <svg class="candle-entry-svg" viewBox="0 0 40 59" aria-hidden="true">
+  <svg class="candle-entry-svg" viewBox="0 0 20 58" aria-hidden="true">
     <defs>
-      <linearGradient id="waxBody" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%"   stop-color="#E3CDA0"/>
-        <stop offset="40%"  stop-color="#F5E9C7"/>
-        <stop offset="100%" stop-color="#D4BB85"/>
+      <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%"   stop-color="#A85C28"/>
+        <stop offset="55%"  stop-color="#E4A055"/>
+        <stop offset="100%" stop-color="#FFF6E4"/>
       </linearGradient>
+      <linearGradient id="flameInner" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%"   stop-color="#F4C077" stop-opacity="0"/>
+        <stop offset="100%" stop-color="#FFF8E8" stop-opacity="0.65"/>
+      </linearGradient>
+      <linearGradient id="waxBody" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#A88F66"/>
+        <stop offset="45%"  stop-color="#EDE0C4"/>
+        <stop offset="100%" stop-color="#9C8055"/>
+      </linearGradient>
+      <radialGradient id="baseShadow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="rgba(20,14,6,0.22)"/>
+        <stop offset="70%"  stop-color="rgba(20,14,6,0.08)"/>
+        <stop offset="100%" stop-color="rgba(20,14,6,0)"/>
+      </radialGradient>
     </defs>
     <g class="flame-glow">
-      <path class="flame-outer" fill="#FFB03A"
-            d="M20 5
-               C 22 10, 26 14, 26 18.5
-               C 26 22.5, 23.4 25, 20 25
-               C 16.6 25, 14 22.5, 14 18.5
-               C 14 14, 18 10, 20 5 Z"/>
-      <path class="flame-inner" fill="#FFE7B0"
-            d="M20 12
-               C 21 15, 22.5 16.8, 22.5 19
-               C 22.5 20.8, 21.4 22, 20 22
-               C 18.6 22, 17.5 20.8, 17.5 19
-               C 17.5 16.8, 19 15, 20 12 Z"/>
+      <path class="flame-outer" fill="url(#flameGrad)"
+            d="M10.8 0
+               C 13.2 5.8, 15.6 10.6, 14.6 16.4
+               C 13.9 20.9, 11.6 24.6, 10.2 24.8
+               C 8.6 25, 6.1 21.2, 5.5 16.2
+               C 5 11, 7.8 6, 10.8 0 Z"/>
+      <path class="flame-core" fill="url(#flameInner)" opacity="0.8"
+            d="M10.3 5
+               C 11.6 8.5, 12.6 11.3, 12.1 14.3
+               C 11.7 16.6, 10.4 18.4, 9.6 18.3
+               C 8.7 18.2, 7.6 16.2, 7.5 13.8
+               C 7.4 11, 9 8, 10.3 5 Z"/>
     </g>
-    <rect x="19.2" y="25" width="1.6" height="7" fill="#2b1e10"/>
-    <rect x="19.2" y="25" width="1.6" height="3" fill="#FF8A2B"/>
-    <rect x="13.5" y="31" width="13" height="24" rx="1.4" fill="url(#waxBody)"/>
-    <ellipse cx="20" cy="31.2" rx="6.5" ry="1.6" fill="#F0E1B8" opacity="0.75"/>
-    <ellipse cx="20" cy="31.2" rx="4.5" ry="1" fill="#E8D5A3" opacity="0.6"/>
-    <path d="M 26.3 34 Q 27.1 37, 26.1 39.2 Q 25.2 37, 26.3 34 Z" fill="#E8D5A3" opacity="0.85"/>
-    <ellipse cx="20" cy="55" rx="9" ry="1.5" fill="rgba(0,0,0,0.28)"/>
+    <rect x="9.5" y="25" width="1" height="4" fill="#4A3520"/>
+    <rect x="6.8" y="30" width="6.4" height="24" rx="2.4" fill="url(#waxBody)"/>
+    <rect x="8" y="31" width="1" height="21" rx="0.5" fill="#FFFBEF" opacity="0.16"/>
+    <ellipse cx="10" cy="30.4" rx="3.2" ry="1.1" fill="#F2E4C4" opacity="0.8"/>
+    <path d="M 12.3 31.5 Q 13.1 34.5, 12.3 37 Q 11.6 34.5, 12.3 31.5 Z" fill="#EDDDB8" opacity="0.5"/>
+    <ellipse cx="10" cy="55" rx="7" ry="2" fill="url(#baseShadow)"/>
   </svg>
 `;
-// Flame height reflects two things: the single newest candle on the wall is
-// always the tallest, and among the rest, a candle with a message stands a
-// little taller than a blank one. A small per-candle hash adds gentle
-// variation within each tier so they don't look mechanically identical.
-function sizeForCandle(candle, isNewest) {
-  let hash = 0;
-  const id = candle.id;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  const wobble = hash % 5; // 0–4px of organic variation
-
-  if (isNewest) return 40 + wobble;          // 40–44px, always the tallest
-  return candle.message ? 30 + wobble : 24 + wobble; // 30–34px vs 24–28px
-}
 
 function escapeHTML(str) {
   return String(str)
@@ -537,10 +571,6 @@ function renderCandles(candles) {
     return;
   }
 
-  // candles[] is always sorted newest-first by the query, regardless of how
-  // many pages have been loaded, so the true newest is always candles[0].
-  const newestId = candles[0]?.id;
-
   candles.forEach((candle) => {
     const t = candle.date.getTime();
     // Only glow for candles newer than the newest we've previously rendered.
@@ -554,7 +584,6 @@ function renderCandles(candles) {
     const svgWrap = document.createElement('div');
     svgWrap.innerHTML = candleSVG;
     const svg = svgWrap.firstElementChild;
-    svg.style.setProperty('--flame-size', sizeForCandle(candle, candle.id === newestId) + 'px');
 
     const name = document.createElement('div');
     name.className = 'candle-entry-name';
@@ -633,8 +662,7 @@ function renderCandles(candles) {
   }
   hasLoadedOnce = true;
 
-  const total = candles.length;
-  summary.textContent = total === 1 ? '1 candle lit' : `${total} candles lit`;
+  updateCandleSummary();
 
   if (printList) {
     const h3 = document.createElement('h3');
@@ -702,6 +730,7 @@ function subscribeToCandles(showLoading = true) {
       });
       renderCandles(candles);
       renderLoadMore(snapshot.docs.length === candleLimit);
+      refreshCandleCount();
     },
     (err) => {
       console.error('Firestore snapshot error:', err);
@@ -711,7 +740,7 @@ function subscribeToCandles(showLoading = true) {
 }
 subscribeToCandles(true);
 
-if (hasAlreadyLitCandle()) showAlreadyLitState();
+if (hasAlreadyLitCandle()) showReturningVisitorNote();
 
 async function submitCandle(event) {
   event.preventDefault();
@@ -763,7 +792,7 @@ async function submitCandle(event) {
     messageInput.value = '';
     hint.textContent = 'Your candle is now lit for everyone to see.';
     markCandleLit();
-    showAlreadyLitState();
+    showReturningVisitorNote();
   } catch (e) {
     console.error('Candle submit failed:', e);
     hint.textContent = 'Something went wrong — please try again.';
