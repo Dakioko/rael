@@ -76,6 +76,11 @@
       border: 0;
     }
 
+    /* Hidden container for shared SVG gradient defs referenced elsewhere
+       on the page (e.g. petals). 0×0 already hides it visually; absolute
+       positioning just keeps it out of document flow. */
+    .svg-defs-hidden { position: absolute; }
+
     html {
       scroll-behavior: smooth;
       scroll-padding-top: 80px;
@@ -969,20 +974,15 @@
        halo repeated behind every single candle — reads as a dim room lit
        by many candles together rather than a grid of individually glowing
        icons, and each flame's own drop-shadow stays crisp on top of it. */
+    /* .candle-wall only ever appears inside .candle-section, which is now
+       always dark regardless of the page theme — so this always uses the
+       richer amber wash, not a lighter variant gated on the global toggle. */
     .candle-wall::before {
       content: '';
       position: absolute;
       inset: 0 -6% 55% -6%;
       pointer-events: none;
       z-index: 0;
-      background-image: radial-gradient(
-        ellipse 70% 100% at 50% 0%,
-        rgba(20, 14, 6, 0.07) 0%,
-        transparent 70%
-      );
-    }
-
-    [data-theme="dark"] .candle-wall::before {
       background-image: radial-gradient(
         ellipse 70% 100% at 50% 0%,
         rgba(224, 160, 90, 0.16) 0%,
@@ -1059,18 +1059,10 @@
        background — flame → warm inner glow → subtle outer glow → page —
        rather than one visibly-orange halo ring. Scoped to the flame group
        only, so the wax body, wick, and base shadow stay crisp. */
-    .candle-entry-svg .flame-glow {
-      filter:
-        drop-shadow(0 0 2px rgba(255, 189, 122, 0.35))
-        drop-shadow(0 0 9px rgba(255, 189, 122, 0.10));
-    }
-
-    [data-theme="dark"] .candle-entry-svg .flame-glow {
-      filter:
-        drop-shadow(0 0 2px rgba(255, 189, 122, 0.42))
-        drop-shadow(0 0 10px rgba(255, 189, 122, 0.15));
-    }
-
+    /* .candle-entry-svg only ever appears inside .candle-section, which is
+       now always dark regardless of the page theme — so this always uses
+       the stronger drop-shadow, not a dimmer variant gated on the global
+       toggle. */
     @keyframes flameFlicker {
       0%, 100% { opacity: 0.9; transform: scale(1) rotate(0deg); }
       25%      { opacity: 0.75; transform: scale(0.97) rotate(-1deg); }
@@ -1079,6 +1071,9 @@
     }
 
     .candle-entry-svg .flame-glow {
+      filter:
+        drop-shadow(0 0 2px rgba(255, 189, 122, 0.42))
+        drop-shadow(0 0 10px rgba(255, 189, 122, 0.15));
       animation: flameFlicker 2.5s ease-in-out infinite;
       transform-origin: 10px 22px;
     }
@@ -1183,39 +1178,6 @@
 
     .candle-print-list { display: none; }
 
-    /* ── Privacy note ── */
-    .privacy-note {
-      max-width: 520px;
-      margin: 28px auto 0;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-
-    .privacy-note summary {
-      cursor: pointer;
-      color: var(--gold);
-      font-weight: 500;
-      letter-spacing: 0.3px;
-      padding: 6px 0;
-      list-style: none;
-    }
-
-    .privacy-note summary::-webkit-details-marker { display: none; }
-    .privacy-note summary::after {
-      content: ' ▾';
-      font-size: 0.7em;
-      transition: transform 0.2s ease;
-      display: inline-block;
-    }
-    .privacy-note[open] summary::after { transform: rotate(180deg); }
-
-    .privacy-note p {
-      margin-top: 10px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-subtle);
-    }
-
     /* ══════════════════════════════════════
        GALLERY
        ══════════════════════════════════════ */
@@ -1255,6 +1217,7 @@
       filter: grayscale(0.15) brightness(0.92);
     }
     .gallery-item:hover img { transform: scale(1.06); filter: grayscale(0) brightness(1); }
+    .gallery-item img.is-top-focus { object-position: center 10%; }
 
     .gallery-zoom {
       position: absolute;
@@ -1665,7 +1628,7 @@
       .hero-actions,
       .back-to-top, .theme-toggle, .footer-share, .share-toast,
       .candle-form, .candle-wall, .candle-count-summary,
-      .candle-load-more, .privacy-note, .gallery-note { display: none !important; }
+      .candle-load-more, .gallery-note { display: none !important; }
 
       .table-scroll { display: block !important; }
       .programme-list { display: none !important; }

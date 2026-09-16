@@ -81,7 +81,7 @@
 
   <div class="petals" aria-hidden="true" id="petals"></div>
 
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <svg width="0" height="0" class="svg-defs-hidden" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="waxShade" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%"   stop-color="rgba(0,0,0,0.12)"/>
@@ -314,18 +314,6 @@
 
       <div class="candle-wall" id="candleWall" aria-label="Candles lit in memory of Rael"></div>
       <p class="sr-only" id="candleStatus" role="status" aria-live="polite"></p>
-
-      <details class="privacy-note">
-        <summary>Where does my message go?</summary>
-        <p>
-          Your name and message are stored in a Google Firebase Firestore database
-          and shown publicly on this page. Nothing else is collected — no IP
-          address, no email, no cookies beyond a light/dark theme preference
-          saved in your browser. To have an entry removed, contact the family
-          and quote the name you submitted; the message will be deleted from
-          the database.
-        </p>
-      </details>
 
       <div class="candle-print-list" id="candlePrintList"></div>
     </section>

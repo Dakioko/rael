@@ -1268,7 +1268,7 @@ const allPhotos = galleryData.memories.filter(p => p && p.src);
     item.setAttribute('tabindex', '0');
     item.setAttribute('aria-label', `View photo: ${p.caption}`);
     item.innerHTML = `
-      <img src="${p.src}" alt="${escapeHTML(p.caption)}" loading="lazy" style="${p.focus === 'top' ? 'object-position: center 10%;' : ''}">
+      <img src="${p.src}" alt="${escapeHTML(p.caption)}" loading="lazy" class="${p.focus === 'top' ? 'is-top-focus' : ''}">
       <span class="gallery-zoom" aria-hidden="true">⤢</span>
       <div class="gallery-caption">${escapeHTML(p.caption)}</div>
     `;
