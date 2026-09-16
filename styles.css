@@ -652,16 +652,39 @@
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
     }
 
-        /* Candle Wall reads a touch too washed-out against the near-white page
-       background in light mode; nudge just this section darker. In dark
-       mode, fall back to the normal --bg-card-alt so it matches the rest
-       of the page instead of staying a fixed light tan. */
+        /* The candle flame graphics were designed against a dark backdrop —
+       warm gradients and soft glow drop-shadows that read as washed-out
+       on the near-white light-mode page. Rather than patch every
+       component inside individually, pin this one section to the dark
+       palette regardless of the page's theme. Every descendant (form
+       fields, hint text, candle glow, privacy note, etc.) already reads
+       its colors from these custom properties, so the override cascades
+       automatically without touching a single other rule. */
     .candle-section {
-      background: var(--bg-card-alt);
-    }
+      --bg-deep:        #14110D;
+      --bg-hero:        #0F0C09;
+      --bg-card:        #1C1712;
+      --bg-card-alt:    #211B15;
+      --bg-elevated:    #241D16;
+      --gold:           #BD7A3E;
+      --gold-light:     #E3AD6E;
+      --gold-dim:       #7A5228;
+      --text-primary:   #F5F0E8;
+      --text-body:      #D1C7BD;
+      --text-muted:     #8E8375;
+      --border:         rgba(189, 122, 62, 0.2);
+      --border-subtle:  rgba(255, 255, 255, 0.08);
+      --nav-surface:    rgba(20, 17, 13, 0.96);
+      --toast-surface:  rgba(28, 23, 18, 0.96);
+      --field-focus-bg: rgba(33, 27, 21, 0.9);
+      --placeholder-bg: #191510;
+      --color-error:    #D98873;
+      --petal-fill:     rgba(232, 213, 163, 0.45);
+      --petal-stroke:   rgba(227, 173, 110, 0.35);
+      --petal-vein:     rgba(227, 173, 110, 0.25);
 
-    [data-theme="dark"] .candle-section {
       background: var(--bg-card-alt);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
     }
 
     .section-card::before {
@@ -672,6 +695,14 @@
       right: 15%;
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+
+    /* Emphasize the seam where the always-dark candle section meets a
+       light-mode page above it, so the transition reads as a deliberate
+       "step into candlelight" rather than a stray rendering glitch. */
+    .candle-section::before {
+      height: 2px;
+      box-shadow: 0 0 10px rgba(189, 122, 62, 0.4);
     }
 
     .section-header { text-align: center; margin-bottom: 44px; }

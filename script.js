@@ -419,48 +419,449 @@ function formatRelativeTime(date) {
    group is what the CSS drop-shadow and flicker animation both target —
    scoped to just the flame shapes so the wax body and shadow stay crisp. */
 const candleSVG = `
-  <svg class="candle-entry-svg" viewBox="0 0 20 58" aria-hidden="true">
+  <svg class="candle-entry-svg"
+       viewBox="0 0 24 64"
+       aria-hidden="true"
+       preserveAspectRatio="xMidYMax meet">
+
     <defs>
-      <linearGradient id="flameGrad" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0%"   stop-color="#A85C28"/>
-        <stop offset="55%"  stop-color="#E4A055"/>
-        <stop offset="100%" stop-color="#FFF6E4"/>
+
+      <!-- Warm candle flame -->
+      <linearGradient id="flameOuterGrad"
+                      x1="0" y1="1"
+                      x2="0" y2="0">
+        <stop offset="0%"   stop-color="#B85B22"/>
+        <stop offset="28%"  stop-color="#E98A32"/>
+        <stop offset="58%"  stop-color="#FFD36E"/>
+        <stop offset="82%"  stop-color="#FFF0B8"/>
+        <stop offset="100%" stop-color="#FFFDF3"/>
       </linearGradient>
-      <linearGradient id="flameInner" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0%"   stop-color="#F4C077" stop-opacity="0"/>
-        <stop offset="100%" stop-color="#FFF8E8" stop-opacity="0.65"/>
+
+      <!-- Bright inner flame -->
+      <linearGradient id="flameInnerGrad"
+                      x1="0" y1="1"
+                      x2="0" y2="0">
+        <stop offset="0%"   stop-color="#F29A32"/>
+        <stop offset="35%"  stop-color="#FFD875"/>
+        <stop offset="75%"  stop-color="#FFF8D9"/>
+        <stop offset="100%" stop-color="#FFFFFF"/>
       </linearGradient>
-      <linearGradient id="waxBody" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%"   stop-color="#A88F66"/>
-        <stop offset="45%"  stop-color="#EDE0C4"/>
-        <stop offset="100%" stop-color="#9C8055"/>
-      </linearGradient>
-      <radialGradient id="baseShadow" cx="50%" cy="50%" r="50%">
-        <stop offset="0%"   stop-color="rgba(20,14,6,0.22)"/>
-        <stop offset="70%"  stop-color="rgba(20,14,6,0.08)"/>
-        <stop offset="100%" stop-color="rgba(20,14,6,0)"/>
+
+      <!-- Soft flame glow -->
+      <radialGradient id="flameGlowGrad"
+                      cx="50%" cy="55%" r="50%">
+        <stop offset="0%"
+              stop-color="#FFD98A"
+              stop-opacity="0.48"/>
+        <stop offset="45%"
+              stop-color="#F5A94F"
+              stop-opacity="0.20"/>
+        <stop offset="100%"
+              stop-color="#F5A94F"
+              stop-opacity="0"/>
       </radialGradient>
+
+      <!-- Realistic cylindrical wax shading -->
+      <linearGradient id="waxBodyGrad"
+                      x1="0" y1="0"
+                      x2="1" y2="0">
+        <stop offset="0%"
+              stop-color="#8F754E"/>
+        <stop offset="12%"
+              stop-color="#B99D6C"/>
+        <stop offset="30%"
+              stop-color="#E8D4AD"/>
+        <stop offset="50%"
+              stop-color="#F2E1C0"/>
+        <stop offset="68%"
+              stop-color="#DEC39A"/>
+        <stop offset="88%"
+              stop-color="#B18D5C"/>
+        <stop offset="100%"
+              stop-color="#806440"/>
+      </linearGradient>
+
+      <!-- Subtle wax highlight -->
+      <linearGradient id="waxHighlightGrad"
+                      x1="0" y1="0"
+                      x2="1" y2="0">
+        <stop offset="0%"
+              stop-color="#FFFFFF"
+              stop-opacity="0"/>
+        <stop offset="45%"
+              stop-color="#FFFDF3"
+              stop-opacity="0.35"/>
+        <stop offset="100%"
+              stop-color="#FFFFFF"
+              stop-opacity="0"/>
+      </linearGradient>
+
+      <!-- Melted wax -->
+      <linearGradient id="meltGrad"
+                      x1="0" y1="0"
+                      x2="0" y2="1">
+        <stop offset="0%"
+              stop-color="#FFF0C9"/>
+        <stop offset="45%"
+              stop-color="#EACD9D"/>
+        <stop offset="100%"
+              stop-color="#C39A62"/>
+      </linearGradient>
+
+      <!-- Wax drip -->
+      <linearGradient id="dripGrad"
+                      x1="0" y1="0"
+                      x2="1" y2="0">
+        <stop offset="0%"
+              stop-color="#D7BB89"/>
+        <stop offset="40%"
+              stop-color="#F3DFB9"/>
+        <stop offset="75%"
+              stop-color="#E3C99C"/>
+        <stop offset="100%"
+              stop-color="#B28E5B"/>
+      </linearGradient>
+
+      <!-- Soft ground shadow -->
+      <radialGradient id="baseShadowGrad"
+                      cx="50%" cy="50%" r="50%">
+        <stop offset="0%"
+              stop-color="#3B2915"
+              stop-opacity="0.24"/>
+        <stop offset="55%"
+              stop-color="#4A341D"
+              stop-opacity="0.12"/>
+        <stop offset="100%"
+              stop-color="#4A341D"
+              stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- Flame blur -->
+      <filter id="flameBlur"
+              x="-100%" y="-100%"
+              width="300%" height="300%">
+        <feGaussianBlur stdDeviation="2"/>
+      </filter>
+
+      <!-- Very subtle wax softness -->
+      <filter id="waxSoftness"
+              x="-10%" y="-10%"
+              width="120%" height="120%">
+        <feGaussianBlur stdDeviation="0.12"/>
+      </filter>
+
     </defs>
+
+
+    <!-- ================================= -->
+    <!-- FLAME GLOW                         -->
+    <!-- ================================= -->
+
+    <ellipse
+      cx="12"
+      cy="13"
+      rx="8"
+      ry="12"
+      fill="url(#flameGlowGrad)"
+      filter="url(#flameBlur)"
+    />
+
+
+    <!-- ================================= -->
+    <!-- FLAME                              -->
+    <!-- ================================= -->
+
     <g class="flame-glow">
-      <path class="flame-outer" fill="url(#flameGrad)"
-            d="M10.8 0
-               C 13.2 5.8, 15.6 10.6, 14.6 16.4
-               C 13.9 20.9, 11.6 24.6, 10.2 24.8
-               C 8.6 25, 6.1 21.2, 5.5 16.2
-               C 5 11, 7.8 6, 10.8 0 Z"/>
-      <path class="flame-core" fill="url(#flameInner)" opacity="0.8"
-            d="M10.3 5
-               C 11.6 8.5, 12.6 11.3, 12.1 14.3
-               C 11.7 16.6, 10.4 18.4, 9.6 18.3
-               C 8.7 18.2, 7.6 16.2, 7.5 13.8
-               C 7.4 11, 9 8, 10.3 5 Z"/>
+
+      <!-- Outer flame -->
+      <path
+        class="flame-outer"
+        fill="url(#flameOuterGrad)"
+        d="
+          M 12 1.5
+          C 12.9 5.5,
+            15.2 8.2,
+            15.1 12.7
+          C 15.0 17.2,
+            13.5 20.9,
+            12 22.5
+          C 10.5 20.9,
+             9.0 17.2,
+             8.9 12.7
+          C 8.8 8.2,
+            11.1 5.5,
+            12 1.5
+          Z
+        "
+      />
+
+      <!-- Bright inner flame -->
+      <path
+        class="flame-core"
+        fill="url(#flameInnerGrad)"
+        d="
+          M 12 7
+          C 12.6 9.5,
+            13.7 11.1,
+            13.5 13.8
+          C 13.3 16.1,
+            12.6 17.6,
+            12 18.3
+          C 11.4 17.6,
+            10.7 16.1,
+            10.5 13.8
+          C 10.3 11.1,
+            11.4 9.5,
+            12 7
+          Z
+        "
+        opacity="0.92"
+      />
+
+      <!-- Tiny hot center -->
+      <ellipse
+        cx="12"
+        cy="15"
+        rx="1.05"
+        ry="2.4"
+        fill="#FFFDF0"
+        opacity="0.82"
+      />
+
     </g>
-    <rect x="9.5" y="25" width="1" height="4" fill="#4A3520"/>
-    <rect x="6.8" y="30" width="6.4" height="24" rx="2.4" fill="url(#waxBody)"/>
-    <rect x="8" y="31" width="1" height="21" rx="0.5" fill="#FFFBEF" opacity="0.16"/>
-    <ellipse cx="10" cy="30.4" rx="3.2" ry="1.1" fill="#F2E4C4" opacity="0.8"/>
-    <path d="M 12.3 31.5 Q 13.1 34.5, 12.3 37 Q 11.6 34.5, 12.3 31.5 Z" fill="#EDDDB8" opacity="0.5"/>
-    <ellipse cx="10" cy="55" rx="7" ry="2" fill="url(#baseShadow)"/>
+
+
+    <!-- ================================= -->
+    <!-- WICK                               -->
+    <!-- ================================= -->
+
+    <!-- Small ember at base of flame -->
+    <ellipse
+      cx="12"
+      cy="23.8"
+      rx="1.05"
+      ry="0.65"
+      fill="#D36B25"
+      opacity="0.7"
+    />
+
+    <!-- Charred wick -->
+    <path
+      d="
+        M 11.55 28
+        C 11.35 26.7,
+          11.65 25.2,
+          11.55 23.8
+        C 11.55 23.3,
+          12.45 23.3,
+          12.45 23.8
+        C 12.35 25.2,
+          12.65 26.7,
+          12.45 28
+        Z
+      "
+      fill="#3B291A"
+    />
+
+    <!-- Wick highlight/ember -->
+    <path
+      d="M 11.85 24 L 11.85 27"
+      stroke="#6A4527"
+      stroke-width="0.35"
+      stroke-linecap="round"
+      opacity="0.75"
+    />
+
+
+    <!-- ================================= -->
+    <!-- CANDLE BODY                        -->
+    <!-- ================================= -->
+
+    <g filter="url(#waxSoftness)">
+
+      <!-- Main cylindrical body -->
+      <path
+        d="
+          M 8 28
+          C 8 26.9,
+            9.8 26.2,
+            12 26.2
+          C 14.2 26.2,
+            16 26.9,
+            16 28
+          L 16 55
+          C 16 57,
+            14.4 58,
+            12 58
+          C 9.6 58,
+            8 57,
+            8 55
+          Z
+        "
+        fill="url(#waxBodyGrad)"
+      />
+
+      <!-- Soft central reflection -->
+      <rect
+        x="9.2"
+        y="29"
+        width="2.2"
+        height="26"
+        rx="1.1"
+        fill="url(#waxHighlightGrad)"
+        opacity="0.75"
+      />
+
+      <!-- Subtle secondary highlight -->
+      <path
+        d="
+          M 14.8 30
+          C 15.1 36,
+            15.1 45,
+            14.8 53
+        "
+        fill="none"
+        stroke="#FFF8E7"
+        stroke-width="0.45"
+        stroke-linecap="round"
+        opacity="0.12"
+      />
+
+    </g>
+
+
+    <!-- ================================= -->
+    <!-- MELTED TOP                         -->
+    <!-- ================================= -->
+
+    <!-- Raised candle rim -->
+    <ellipse
+      cx="12"
+      cy="28"
+      rx="4"
+      ry="1.8"
+      fill="#D9BE8C"
+      opacity="0.75"
+    />
+
+    <!-- Melted wax pool -->
+    <ellipse
+      cx="12"
+      cy="28.05"
+      rx="3.35"
+      ry="1.25"
+      fill="url(#meltGrad)"
+    />
+
+    <!-- Inner melted depression -->
+    <ellipse
+      cx="12"
+      cy="28.15"
+      rx="2.15"
+      ry="0.72"
+      fill="#C99E62"
+      opacity="0.55"
+    />
+
+    <!-- Bright melted-wax reflection -->
+    <ellipse
+      cx="12.7"
+      cy="27.75"
+      rx="1.65"
+      ry="0.38"
+      fill="#FFF5D8"
+      opacity="0.62"
+    />
+
+
+    <!-- ================================= -->
+    <!-- WAX DRIPS                          -->
+    <!-- ================================= -->
+
+    <!-- Main long drip -->
+    <path
+      d="
+        M 14.25 28.6
+        C 14.35 31,
+          14.9 32.3,
+          14.55 35
+        C 14.35 36.6,
+          13.65 37,
+          13.55 35.4
+        C 13.45 33.2,
+          13.75 31.3,
+          13.55 29
+        Z
+      "
+      fill="url(#dripGrad)"
+      opacity="0.9"
+    />
+
+    <!-- Small secondary drip -->
+    <path
+      d="
+        M 15.25 29
+        C 15.5 31.2,
+          15.75 32.4,
+          15.5 34
+        C 15.4 35,
+          15.05 35.3,
+          14.95 34
+        C 14.8 32,
+          15.05 30.4,
+          14.75 29
+        Z
+      "
+      fill="url(#dripGrad)"
+      opacity="0.65"
+    />
+
+    <!-- Tiny wax bead -->
+    <ellipse
+      cx="14.1"
+      cy="35.5"
+      rx="0.55"
+      ry="0.75"
+      fill="#E7D0A4"
+      opacity="0.9"
+    />
+
+
+    <!-- ================================= -->
+    <!-- SUBTLE WAX IMPERFECTIONS           -->
+    <!-- ================================= -->
+
+    <path
+      d="M 9.1 39 C 9.4 40.5, 9.0 42, 9.2 43.5"
+      fill="none"
+      stroke="#FFF2D4"
+      stroke-width="0.25"
+      opacity="0.12"
+      stroke-linecap="round"
+    />
+
+    <path
+      d="M 13.8 46 C 14.1 48, 13.8 50, 14 52"
+      fill="none"
+      stroke="#8C7048"
+      stroke-width="0.25"
+      opacity="0.10"
+      stroke-linecap="round"
+    />
+
+
+    <!-- ================================= -->
+    <!-- BASE SHADOW                        -->
+    <!-- ================================= -->
+
+    <ellipse
+      cx="12"
+      cy="59"
+      rx="8.2"
+      ry="2.2"
+      fill="url(#baseShadowGrad)"
+    />
+
   </svg>
 `;
 
