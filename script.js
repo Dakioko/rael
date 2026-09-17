@@ -1357,8 +1357,13 @@ lightbox.addEventListener('touchend', (e) => {
 }, { passive: true });
 
 /* ══════════════════════════════════════
-   EXPOSE INLINE-HANDLER FUNCTIONS
-   Module scope is not global, so anything referenced
-   from onclick="" in index.html must be re-exported here.
+   SHARE & BACK-TO-TOP BUTTONS
+   Wired here (rather than onclick="" in the HTML) so they
+   work under the site's script-src CSP, which has no
+   'unsafe-inline' / 'unsafe-hashes'.
    ══════════════════════════════════════ */
-window.shareThis = shareThis;
+document.getElementById('shareBtnHero')?.addEventListener('click', shareThis);
+document.getElementById('shareBtnFooter')?.addEventListener('click', shareThis);
+document.getElementById('backToTop')?.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
