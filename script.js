@@ -1242,6 +1242,19 @@ const galleryData = {
     { src: 'photos/rael-2.jpg', caption: '', focus: 'top' },
     { src: 'photos/rael-3.jpg', caption: '' },
     { src: 'photos/rael-4.jpg', caption: 'With family, March 2026' },
+    { src: 'photos/1.png', caption: '' },
+    { src: 'photos/2.png', caption: '' },
+    { src: 'photos/3.png', caption: '' },
+    { src: 'photos/4.png', caption: '' },
+    { src: 'photos/5.png', caption: '' },
+    { src: 'photos/6.png', caption: '' },
+    { src: 'photos/7.png', caption: '' },
+    { src: 'photos/8.png', caption: '' },
+    { src: 'photos/9.png', caption: '' },
+    { src: 'photos/10.png', caption: '' },
+    { src: 'photos/11.png', caption: '' },
+    { src: 'photos/12.png', caption: '' },
+    { src: 'photos/13.png', caption: '' },
   ]
 };
 
